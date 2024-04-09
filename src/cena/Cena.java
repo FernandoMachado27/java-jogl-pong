@@ -86,8 +86,10 @@ public class Cena implements GLEventListener{
 
         // Desenha a bola
         gl.glPushMatrix();
-        gl.glTranslatef(ballX, ballY, 0);
-        ball.drawSphere(gl, ballSize, 20, 20);
+        float ballCenterX = (float) ballX; // Coordenada X do centro da bola
+        float ballCenterY = (float) ballY; // Coordenada Y do centro da bola
+        gl.glTranslatef(ballCenterX, ballCenterY, 0);
+        ball.drawSphere(gl, 0, 0, ballSize, 20, 20); // Passa as coordenadas do centro da bola
         gl.glPopMatrix();
 
         // Desenha o placar
@@ -151,41 +153,45 @@ public class Cena implements GLEventListener{
     // Método não utilizado, mas necessário pela interface GLEventListener
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-    	GL2 gl = drawable.getGL().getGL2();
-        
+        GL2 gl = drawable.getGL().getGL2();
+
         // Evita a divisão por zero
         if (height == 0) height = 1;
-        
+
         // Calcula a proporção da janela (aspect ratio) da nova janela
         float aspect = (float) width / height;
-        
+
         // Define a área de visualização considerando a correção de aspecto
         if (width > height) {
             // Maior largura, ajusta a altura para manter a proporção
             float aspectRatio = (float) height / width;
             yMin = -100 * aspectRatio;
             yMax = 100 * aspectRatio;
+            paddleHeight = (int) (80 * aspectRatio); // Ajusta a altura das raquetes
+            ballSize = (int) (10 * aspectRatio); // Ajusta o tamanho da bola
         } else {
             // Maior altura, ajusta a largura para manter a proporção
             float aspectRatio = (float) width / height;
             xMin = -100 * aspectRatio;
             xMax = 100 * aspectRatio;
+            paddleWidth = (int) (10 * aspectRatio); // Ajusta a largura das raquetes
+            ballSize = (int) (10 * aspectRatio); // Ajusta o tamanho da bola
         }
-        
+
         // Define a viewport para abranger a janela inteira
         gl.glViewport(0, 0, width, height);
-        
+
         // Ativa a matriz de projeção
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
-        
+
         // Projecao ortogonal com correção de aspecto
         gl.glOrtho(xMin, xMax, yMin, yMax, zMin, zMax);
-        
+
         // Ativa a matriz de modelagem
         gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
-        
+
         System.out.println("Reshape: " + width + ", " + height);
     }
 
