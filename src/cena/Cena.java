@@ -1,4 +1,3 @@
-
 // Define o pacote ao qual esta classe pertence
 package cena;
 
@@ -122,6 +121,20 @@ public class Cena implements GLEventListener{
         if (ballY + ballSize / 2 >= yMax || ballY - ballSize / 2 <= yMin) {
             ballDY *= -1;
         }
+        
+        // Verifica colisão das raquetes com as paredes superior e inferior
+        if (paddle1Y + paddleHeight / 2 >= yMax) {
+            paddle1Y = (int) (yMax - paddleHeight / 2);
+        } else if (paddle1Y - paddleHeight / 2 <= yMin) {
+            paddle1Y = (int) (yMin + paddleHeight / 2);
+        }
+
+        if (paddle2Y + paddleHeight / 2 >= yMax) {
+            paddle2Y = (int) (yMax - paddleHeight / 2);
+        } else if (paddle2Y - paddleHeight / 2 <= yMin) {
+            paddle2Y = (int) (yMin + paddleHeight / 2);
+        }
+        
 
         // Verifica colisão com as raquetes e adiciona variação aleatória na direção vertical da bola
         if ((ballX - ballSize / 2 <= -95 + paddleWidth) && (ballY >= paddle1Y - paddleHeight / 2 && ballY <= paddle1Y + paddleHeight / 2)) {
@@ -157,9 +170,6 @@ public class Cena implements GLEventListener{
 
         // Evita a divisão por zero
         if (height == 0) height = 1;
-
-        // Calcula a proporção da janela (aspect ratio) da nova janela
-        float aspect = (float) width / height;
 
         // Define a área de visualização considerando a correção de aspecto
         if (width > height) {
