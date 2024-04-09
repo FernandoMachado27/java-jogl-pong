@@ -1,3 +1,4 @@
+
 // Define o pacote ao qual esta classe pertence
 package cena;
 
@@ -151,25 +152,40 @@ public class Cena implements GLEventListener{
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
     	GL2 gl = drawable.getGL().getGL2();
-    	
-    	//evita a divisao por zero
-        if(height == 0) height = 1;
-        //calcula a proporcao da janela (aspect ratio) da nova janela
+        
+        // Evita a divisão por zero
+        if (height == 0) height = 1;
+        
+        // Calcula a proporção da janela (aspect ratio) da nova janela
         float aspect = (float) width / height;
         
-    	//seta o viewport para abranger a janela inteira
+        // Define a área de visualização considerando a correção de aspecto
+        if (width > height) {
+            // Maior largura, ajusta a altura para manter a proporção
+            float aspectRatio = (float) height / width;
+            yMin = -100 * aspectRatio;
+            yMax = 100 * aspectRatio;
+        } else {
+            // Maior altura, ajusta a largura para manter a proporção
+            float aspectRatio = (float) width / height;
+            xMin = -100 * aspectRatio;
+            xMax = 100 * aspectRatio;
+        }
+        
+        // Define a viewport para abranger a janela inteira
         gl.glViewport(0, 0, width, height);
         
-      //ativa a matriz de projecao
-        gl.glMatrixMode(GL2.GL_PROJECTION);      
-        gl.glLoadIdentity(); //ler a matriz identidade
+        // Ativa a matriz de projeção
+        gl.glMatrixMode(GL2.GL_PROJECTION);
+        gl.glLoadIdentity();
         
-      //projecao ortogonal sem a correcao do aspecto
+        // Projecao ortogonal com correção de aspecto
         gl.glOrtho(xMin, xMax, yMin, yMax, zMin, zMax);
         
-      //ativa a matriz de modelagem
+        // Ativa a matriz de modelagem
         gl.glMatrixMode(GL2.GL_MODELVIEW);
-        gl.glLoadIdentity(); //ler a matriz identidade
+        gl.glLoadIdentity();
+        
         System.out.println("Reshape: " + width + ", " + height);
     }
 

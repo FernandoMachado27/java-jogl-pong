@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="C:/Program Files/JOGL/jogl-all.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/JOGL/jogl-all-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/JOGL/jogl-java-src.zip"/>
+	<classpathentry kind="lib" path="C:/Users/Ferna/Downloads/lombok.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
