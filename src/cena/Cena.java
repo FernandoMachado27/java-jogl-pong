@@ -146,14 +146,16 @@ public class Cena implements GLEventListener{
             computer++;
             resetBall();
         }
+        
+        
     }
 
     // Reseta a posição da bola para o centro e inverte sua direção horizontal
     private void resetBall() {
-        ballX = 0;
+    	ballX = 0;
         ballY = 0;
-        ballDX = -ballDX; // Inverte a direção horizontal
-        ballDY = 2; // Reseta a velocidade vertical para o valor padrão
+        ballDX = rand.nextBoolean() ? 2 : -2; // Define direção horizontal aleatória
+        ballDY = rand.nextInt(5) - 2; // Define direção vertical aleatória entre -2 e 2
     }
 
     // Método não utilizado, mas necessário pela interface GLEventListener

@@ -21,6 +21,6 @@ public class Collisions {
 		}
 		return paddleY; // Retorna paddleY sem modificar
 	}
-
+	
 	
 }
