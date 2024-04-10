@@ -8,6 +8,9 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.awt.TextRenderer;
+
+import static validations.Collisions.*;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.util.Random;
@@ -85,8 +88,10 @@ public class Cena implements GLEventListener{
 
         // Desenha a bola
         gl.glPushMatrix();
-        gl.glTranslatef(ballX, ballY, 0);
-        ball.drawSphere(gl, ballSize, 20, 20);
+        float ballCenterX = (float) ballX; // Coordenada X do centro da bola
+        float ballCenterY = (float) ballY; // Coordenada Y do centro da bola
+        gl.glTranslatef(ballCenterX, ballCenterY, 0);
+        ball.drawSphere(gl, 0, 0, ballSize, 20, 20); // Passa as coordenadas do centro da bola
         gl.glPopMatrix();
 
         // Desenha o placar
@@ -116,9 +121,12 @@ public class Cena implements GLEventListener{
         ballY += ballDY;
 
         // Verifica colisão com as paredes superior e inferior
-        if (ballY + ballSize / 2 >= yMax || ballY - ballSize / 2 <= yMin) {
-            ballDY *= -1;
-        }
+        ballDY = collisionWallBall(ballY, ballSize, yMax, yMin, ballDY);
+        
+        // Verifica colisão das raquetes com as paredes superior e inferior
+        paddle1Y = collisionPaddleWall(paddle1Y, paddleHeight, yMax, yMin);
+        paddle2Y = collisionPaddleWall(paddle2Y, paddleHeight, yMax, yMin);
+        
 
         // Verifica colisão com as raquetes e adiciona variação aleatória na direção vertical da bola
         if ((ballX - ballSize / 2 <= -95 + paddleWidth) && (ballY >= paddle1Y - paddleHeight / 2 && ballY <= paddle1Y + paddleHeight / 2)) {
@@ -127,8 +135,9 @@ public class Cena implements GLEventListener{
         } else if ((ballX + ballSize / 2 >= 95 - paddleWidth) && (ballY >= paddle2Y - paddleHeight / 2 && ballY <= paddle2Y + paddleHeight / 2)) {
             ballDX *= -1;
             ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1
-        }
-
+        } 
+        
+        
         // Verifica se a bola saiu do campo e atualiza o placar
         if (ballX + ballSize / 2 >= xMax) {
             player1Score++;
@@ -150,26 +159,42 @@ public class Cena implements GLEventListener{
     // Método não utilizado, mas necessário pela interface GLEventListener
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-    	GL2 gl = drawable.getGL().getGL2();
-    	
-    	//evita a divisao por zero
-        if(height == 0) height = 1;
-        //calcula a proporcao da janela (aspect ratio) da nova janela
-        float aspect = (float) width / height;
-        
-    	//seta o viewport para abranger a janela inteira
+        GL2 gl = drawable.getGL().getGL2();
+
+        // Evita a divisão por zero
+        if (height == 0) height = 1;
+
+        // Define a área de visualização considerando a correção de aspecto
+        if (width > height) {
+            // Maior largura, ajusta a altura para manter a proporção
+            float aspectRatio = (float) height / width;
+            yMin = -100 * aspectRatio;
+            yMax = 100 * aspectRatio;
+            paddleHeight = (int) (80 * aspectRatio); // Ajusta a altura das raquetes
+            ballSize = (int) (10 * aspectRatio); // Ajusta o tamanho da bola
+        } else {
+            // Maior altura, ajusta a largura para manter a proporção
+            float aspectRatio = (float) width / height;
+            xMin = -100 * aspectRatio;
+            xMax = 100 * aspectRatio;
+            paddleWidth = (int) (10 * aspectRatio); // Ajusta a largura das raquetes
+            ballSize = (int) (10 * aspectRatio); // Ajusta o tamanho da bola
+        }
+
+        // Define a viewport para abranger a janela inteira
         gl.glViewport(0, 0, width, height);
-        
-      //ativa a matriz de projecao
-        gl.glMatrixMode(GL2.GL_PROJECTION);      
-        gl.glLoadIdentity(); //ler a matriz identidade
-        
-      //projecao ortogonal sem a correcao do aspecto
+
+        // Ativa a matriz de projeção
+        gl.glMatrixMode(GL2.GL_PROJECTION);
+        gl.glLoadIdentity();
+
+        // Projecao ortogonal com correção de aspecto
         gl.glOrtho(xMin, xMax, yMin, yMax, zMin, zMax);
-        
-      //ativa a matriz de modelagem
+
+        // Ativa a matriz de modelagem
         gl.glMatrixMode(GL2.GL_MODELVIEW);
-        gl.glLoadIdentity(); //ler a matriz identidade
+        gl.glLoadIdentity();
+
         System.out.println("Reshape: " + width + ", " + height);
     }
 
