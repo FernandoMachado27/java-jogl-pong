@@ -8,6 +8,9 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.awt.TextRenderer;
+
+import static validations.Collisions.*;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.util.Random;
@@ -118,22 +121,11 @@ public class Cena implements GLEventListener{
         ballY += ballDY;
 
         // Verifica colisão com as paredes superior e inferior
-        if (ballY + ballSize / 2 >= yMax || ballY - ballSize / 2 <= yMin) {
-            ballDY *= -1;
-        }
+        ballDY = collisionWallBall(ballY, ballSize, yMax, yMin, ballDY);
         
         // Verifica colisão das raquetes com as paredes superior e inferior
-        if (paddle1Y + paddleHeight / 2 >= yMax) {
-            paddle1Y = (int) (yMax - paddleHeight / 2);
-        } else if (paddle1Y - paddleHeight / 2 <= yMin) {
-            paddle1Y = (int) (yMin + paddleHeight / 2);
-        }
-
-        if (paddle2Y + paddleHeight / 2 >= yMax) {
-            paddle2Y = (int) (yMax - paddleHeight / 2);
-        } else if (paddle2Y - paddleHeight / 2 <= yMin) {
-            paddle2Y = (int) (yMin + paddleHeight / 2);
-        }
+        paddle1Y = collisionPaddleWall(paddle1Y, paddleHeight, yMax, yMin);
+        paddle2Y = collisionPaddleWall(paddle2Y, paddleHeight, yMax, yMin);
         
 
         // Verifica colisão com as raquetes e adiciona variação aleatória na direção vertical da bola
@@ -143,8 +135,9 @@ public class Cena implements GLEventListener{
         } else if ((ballX + ballSize / 2 >= 95 - paddleWidth) && (ballY >= paddle2Y - paddleHeight / 2 && ballY <= paddle2Y + paddleHeight / 2)) {
             ballDX *= -1;
             ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1
-        }
-
+        } 
+        
+        
         // Verifica se a bola saiu do campo e atualiza o placar
         if (ballX + ballSize / 2 >= xMax) {
             player1Score++;
