@@ -11,7 +11,7 @@ import com.jogamp.opengl.util.texture.TextureIO;
  * @author Kakugawa
  */
 public class Textura {
-    private Texture vetTextures[]; //novo   
+    public Texture vetTextures[]; //novo   
     private float width;
     private float height;
     private int filtro;
