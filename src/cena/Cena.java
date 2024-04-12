@@ -1,4 +1,3 @@
-// Define o pacote ao qual esta classe pertence
 package cena;
 
 import static validations.Collisions.collisionPaddleWall;
@@ -21,8 +20,8 @@ public class Cena implements GLEventListener{
     // Variáveis para definir os limites do campo de jogo
     private float xMin, xMax, yMin, yMax, zMin, zMax;
     // Dimensões das raquetes
-    private int paddleWidth = 10;
-    private int paddleHeight = 80;
+    private int paddleWidth = 5;
+    private int paddleHeight = 50;
     // Posição inicial das raquetes
     public int paddle1Y = 0;
     public int paddle2Y = 0;
@@ -41,7 +40,7 @@ public class Cena implements GLEventListener{
     // Gerador de números aleatórios
     private Random rand = new Random();
     private Ball ball = new Ball();
-    private Textura texturaDeFundo;
+    private Textura textura;
 
     public Cena() {
         // Define os limites do campo de jogo
@@ -57,15 +56,17 @@ public class Cena implements GLEventListener{
         textRenderer = new TextRenderer(new Font("Arial", Font.BOLD, 24));
         glu = new GLU();
         
-        // Inicialize o objeto de textura de fundo
-        texturaDeFundo = new Textura(1); 	
+        // Inicialize o objeto de textura
+        textura = new Textura(3); 	
     }
 
     @Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
         
-        texturaDeFundo.gerarTextura(gl, "imagens/pong.jpg", 0);
+        textura.gerarTextura(gl, "imagens/planoDeFundo.jpg", 0);
+        textura.gerarTextura(gl, "imagens/raquetes.jpg", 1);
+        textura.gerarTextura(gl, "imagens/bola.jpg", 2);
     }
 
     // Método chamado para cada quadro de animação, onde ocorre o desenho do jogo
@@ -82,7 +83,7 @@ public class Cena implements GLEventListener{
 
         // Desenha o fundo com a textura
         gl.glEnable(GL2.GL_TEXTURE_2D);
-        texturaDeFundo.vetTextures[0].bind(gl);
+        textura.vetTextures[0].bind(gl);
         gl.glBegin(GL2.GL_QUADS);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex2f(xMin, yMin);
@@ -99,7 +100,32 @@ public class Cena implements GLEventListener{
         gl.glRecti(-95, paddle1Y - paddleHeight / 2, -95 + paddleWidth, paddle1Y + paddleHeight / 2);
         gl.glRecti(95 - paddleWidth, paddle2Y - paddleHeight / 2, 95, paddle2Y + paddleHeight / 2);
 
-        // Desenha a bola
+        gl.glEnable(GL2.GL_TEXTURE_2D);
+        textura.vetTextures[1].bind(gl);
+        gl.glBegin(GL2.GL_QUADS);
+        gl.glTexCoord2f(0.0f, 0.0f);
+        gl.glVertex2f(-95, paddle1Y - paddleHeight / 2);
+        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glVertex2f(-95 + paddleWidth, paddle1Y - paddleHeight / 2);
+        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glVertex2f(-95 + paddleWidth, paddle1Y + paddleHeight / 2);
+        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glVertex2f(-95, paddle1Y + paddleHeight / 2);
+        gl.glEnd();
+        
+        gl.glBegin(GL2.GL_QUADS);
+        gl.glTexCoord2f(0.0f, 0.0f);
+        gl.glVertex2f(95 - paddleWidth, paddle2Y - paddleHeight / 2);
+        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glVertex2f(95, paddle2Y - paddleHeight / 2);
+        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glVertex2f(95, paddle2Y + paddleHeight / 2);
+        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glVertex2f(95 - paddleWidth, paddle2Y + paddleHeight / 2);
+        gl.glEnd();
+        gl.glDisable(GL2.GL_TEXTURE_2D);
+        
+        // Desenha a bolinha
         gl.glPushMatrix();
         float ballCenterX = (float) ballX; // Coordenada X do centro da bola
         float ballCenterY = (float) ballY; // Coordenada Y do centro da bola
