@@ -58,6 +58,9 @@ public class Cena implements GLEventListener{
         
         // Inicialize o objeto de textura
         textura = new Textura(3); 	
+        
+        player1Score = 0;
+        computer = 0;
     }
 
     @Override
@@ -145,7 +148,7 @@ public class Cena implements GLEventListener{
     }
 
     private void update() {
-        // Movimenta automaticamente a raquete do computador
+    	// Movimenta automaticamente a raquete do computador
         if (ballX > 0) {
             if (ballY > paddle2Y) {
                 paddle2Y += 1;
@@ -185,7 +188,7 @@ public class Cena implements GLEventListener{
         
     }
 
-    private void resetBall() {
+	private void resetBall() {
     	ballX = 0;
         ballY = 0;
         ballDX = rand.nextBoolean() ? 2 : -2; // Define direção horizontal aleatória
