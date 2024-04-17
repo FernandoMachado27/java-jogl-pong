@@ -2,12 +2,11 @@ package cena;
 
 import static validations.Collisions.collisionPaddleWall;
 import static validations.Collisions.collisionWallBall;
+import static cena.Design.design;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.util.Random;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
@@ -72,76 +71,11 @@ public class Cena implements GLEventListener{
         textura.gerarTextura(gl, "imagens/bola.jpg", 2);
     }
 
-    // Método chamado para cada quadro de animação, onde ocorre o desenho do jogo
+    
     @Override
     public void display(GLAutoDrawable drawable) {
-        GL2 gl = drawable.getGL().getGL2();
-        // Limpa a tela
-        gl.glClear(GL.GL_COLOR_BUFFER_BIT);
-
-        // Reseta as transformações
-        gl.glLoadIdentity();
-        // Define a projeção ortográfica com base nos limites do campo
-        gl.glOrtho(xMin, xMax, yMin, yMax, -1, 1);
-
-        // Desenha o fundo com a textura
-        gl.glEnable(GL2.GL_TEXTURE_2D);
-        textura.vetTextures[0].bind(gl);
-        gl.glBegin(GL2.GL_QUADS);
-        gl.glTexCoord2f(0.0f, 0.0f);
-        gl.glVertex2f(xMin, yMin);
-        gl.glTexCoord2f(1.0f, 0.0f);
-        gl.glVertex2f(xMax, yMin);
-        gl.glTexCoord2f(1.0f, 1.0f);
-        gl.glVertex2f(xMax, yMax);
-        gl.glTexCoord2f(0.0f, 1.0f);
-        gl.glVertex2f(xMin, yMax);
-        gl.glEnd();
-        gl.glDisable(GL2.GL_TEXTURE_2D);
-
-        // Desenha as raquetes
-        gl.glRecti(-95, paddle1Y - paddleHeight / 2, -95 + paddleWidth, paddle1Y + paddleHeight / 2);
-        gl.glRecti(95 - paddleWidth, paddle2Y - paddleHeight / 2, 95, paddle2Y + paddleHeight / 2);
-
-        gl.glEnable(GL2.GL_TEXTURE_2D);
-        textura.vetTextures[1].bind(gl);
-        gl.glBegin(GL2.GL_QUADS);
-        gl.glTexCoord2f(0.0f, 0.0f);
-        gl.glVertex2f(-95, paddle1Y - paddleHeight / 2);
-        gl.glTexCoord2f(1.0f, 0.0f);
-        gl.glVertex2f(-95 + paddleWidth, paddle1Y - paddleHeight / 2);
-        gl.glTexCoord2f(1.0f, 1.0f);
-        gl.glVertex2f(-95 + paddleWidth, paddle1Y + paddleHeight / 2);
-        gl.glTexCoord2f(0.0f, 1.0f);
-        gl.glVertex2f(-95, paddle1Y + paddleHeight / 2);
-        gl.glEnd();
-        
-        gl.glBegin(GL2.GL_QUADS);
-        gl.glTexCoord2f(0.0f, 0.0f);
-        gl.glVertex2f(95 - paddleWidth, paddle2Y - paddleHeight / 2);
-        gl.glTexCoord2f(1.0f, 0.0f);
-        gl.glVertex2f(95, paddle2Y - paddleHeight / 2);
-        gl.glTexCoord2f(1.0f, 1.0f);
-        gl.glVertex2f(95, paddle2Y + paddleHeight / 2);
-        gl.glTexCoord2f(0.0f, 1.0f);
-        gl.glVertex2f(95 - paddleWidth, paddle2Y + paddleHeight / 2);
-        gl.glEnd();
-        gl.glDisable(GL2.GL_TEXTURE_2D);
-        
-        // Desenha a bolinha
-        gl.glPushMatrix();
-        float ballCenterX = (float) ballX; // Coordenada X do centro da bola
-        float ballCenterY = (float) ballY; // Coordenada Y do centro da bola
-        gl.glTranslatef(ballCenterX, ballCenterY, 0);
-        ball.drawSphere(gl, 0, 0, ballSize, 20, 20); // Passa as coordenadas do centro da bola
-        gl.glPopMatrix();
-
-        // Desenha o placar
-        String scoreText = player1Score + " | " + computer;
-        textRenderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
-        textRenderer.setColor(Color.WHITE);
-        textRenderer.draw(scoreText, (drawable.getSurfaceWidth() / 2) - 30, drawable.getSurfaceHeight() - 30);
-        textRenderer.endRendering();
+    	// Método chamado para cada quadro de animação, onde ocorre o desenho do jogo
+    	design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
 
         // Atualiza o estado do jogo
         update();

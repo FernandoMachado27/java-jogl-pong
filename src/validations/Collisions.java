@@ -1,10 +1,6 @@
 package validations;
 
-import java.util.Random;
-
 public class Collisions {
-
-	private static final Random rand = new Random();
 
 	public static int collisionWallBall(int ballY, int ballSize, float yMax, float yMin, int ballDY) {
 		if (ballY + ballSize / 2 >= yMax || ballY - ballSize / 2 <= yMin) {
@@ -21,6 +17,5 @@ public class Collisions {
 		}
 		return paddleY; // Retorna paddleY sem modificar
 	}
-	
 	
 }
