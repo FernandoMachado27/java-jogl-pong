@@ -23,7 +23,7 @@ public class Renderer {
         GLCapabilities caps = new GLCapabilities(profile);        
         window = GLWindow.create(caps);
         window.setSize(screenWidth, screenHeight);
-        //window.setResizable(false);
+        window.setResizable(false);
        
         Cena cena = new Cena();
        
@@ -44,7 +44,7 @@ public class Renderer {
             }
         });      
        
-        //window.setFullscreen(true);        
+        window.setFullscreen(true);        
         window.setVisible(true);
     }
  

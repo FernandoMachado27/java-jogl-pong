@@ -1,7 +1,12 @@
-// Define o pacote ao qual esta classe pertence
 package cena;
 
-// Importa as bibliotecas necessárias para utilizar funcionalidades do OpenGL, eventos de teclado e cores
+import static validations.Collisions.collisionPaddleWall;
+import static validations.Collisions.collisionWallBall;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.util.Random;
+
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -9,19 +14,14 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.awt.TextRenderer;
 
-import static validations.Collisions.*;
+import textura.Textura;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.util.Random;
-
-// Declaração da classe Cena, que implementa as interfaces GLEventListener e KeyListener
 public class Cena implements GLEventListener{
     // Variáveis para definir os limites do campo de jogo
     private float xMin, xMax, yMin, yMax, zMin, zMax;
     // Dimensões das raquetes
-    private int paddleWidth = 10;
-    private int paddleHeight = 80;
+    private int paddleWidth = 5;
+    private int paddleHeight = 50;
     // Posição inicial das raquetes
     public int paddle1Y = 0;
     public int paddle2Y = 0;
@@ -31,7 +31,6 @@ public class Cena implements GLEventListener{
     private int ballY = 0;
     private int ballDX = 2; // Velocidade horizontal da bola
     private int ballDY = 2; // Velocidade vertical da bola
-    // Placar dos jogadores
     private int player1Score = 0;
     private int computer = 0;
     // Renderizador de texto para o placar
@@ -41,8 +40,8 @@ public class Cena implements GLEventListener{
     // Gerador de números aleatórios
     private Random rand = new Random();
     private Ball ball = new Ball();
+    private Textura textura;
 
-    // Construtor da classe, inicializa configurações iniciais do jogo
     public Cena() {
         // Define os limites do campo de jogo
         xMin = -100;
@@ -54,17 +53,23 @@ public class Cena implements GLEventListener{
         ballX = (int) ((xMax - xMin) / 2);
         ballY = (int) ((yMax - yMin) / 2);
 
-        // Inicializa o renderizador de texto e o objeto GLU
         textRenderer = new TextRenderer(new Font("Arial", Font.BOLD, 24));
         glu = new GLU();
+        
+        // Inicialize o objeto de textura
+        textura = new Textura(3); 	
+        
+        player1Score = 0;
+        computer = 0;
     }
 
-    // Método chamado quando a área de desenho OpenGL é inicializada
     @Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-        // Define a cor de fundo para preto
-        gl.glClearColor(0, 0, 0, 1);
+        
+        textura.gerarTextura(gl, "imagens/planoDeFundo.jpg", 0);
+        textura.gerarTextura(gl, "imagens/raquetes.jpg", 1);
+        textura.gerarTextura(gl, "imagens/bola.jpg", 2);
     }
 
     // Método chamado para cada quadro de animação, onde ocorre o desenho do jogo
@@ -79,14 +84,51 @@ public class Cena implements GLEventListener{
         // Define a projeção ortográfica com base nos limites do campo
         gl.glOrtho(xMin, xMax, yMin, yMax, -1, 1);
 
-        // Define a cor para branco
-        gl.glColor3f(1, 1, 1);
+        // Desenha o fundo com a textura
+        gl.glEnable(GL2.GL_TEXTURE_2D);
+        textura.vetTextures[0].bind(gl);
+        gl.glBegin(GL2.GL_QUADS);
+        gl.glTexCoord2f(0.0f, 0.0f);
+        gl.glVertex2f(xMin, yMin);
+        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glVertex2f(xMax, yMin);
+        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glVertex2f(xMax, yMax);
+        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glVertex2f(xMin, yMax);
+        gl.glEnd();
+        gl.glDisable(GL2.GL_TEXTURE_2D);
 
         // Desenha as raquetes
         gl.glRecti(-95, paddle1Y - paddleHeight / 2, -95 + paddleWidth, paddle1Y + paddleHeight / 2);
         gl.glRecti(95 - paddleWidth, paddle2Y - paddleHeight / 2, 95, paddle2Y + paddleHeight / 2);
 
-        // Desenha a bola
+        gl.glEnable(GL2.GL_TEXTURE_2D);
+        textura.vetTextures[1].bind(gl);
+        gl.glBegin(GL2.GL_QUADS);
+        gl.glTexCoord2f(0.0f, 0.0f);
+        gl.glVertex2f(-95, paddle1Y - paddleHeight / 2);
+        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glVertex2f(-95 + paddleWidth, paddle1Y - paddleHeight / 2);
+        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glVertex2f(-95 + paddleWidth, paddle1Y + paddleHeight / 2);
+        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glVertex2f(-95, paddle1Y + paddleHeight / 2);
+        gl.glEnd();
+        
+        gl.glBegin(GL2.GL_QUADS);
+        gl.glTexCoord2f(0.0f, 0.0f);
+        gl.glVertex2f(95 - paddleWidth, paddle2Y - paddleHeight / 2);
+        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glVertex2f(95, paddle2Y - paddleHeight / 2);
+        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glVertex2f(95, paddle2Y + paddleHeight / 2);
+        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glVertex2f(95 - paddleWidth, paddle2Y + paddleHeight / 2);
+        gl.glEnd();
+        gl.glDisable(GL2.GL_TEXTURE_2D);
+        
+        // Desenha a bolinha
         gl.glPushMatrix();
         float ballCenterX = (float) ballX; // Coordenada X do centro da bola
         float ballCenterY = (float) ballY; // Coordenada Y do centro da bola
@@ -95,19 +137,18 @@ public class Cena implements GLEventListener{
         gl.glPopMatrix();
 
         // Desenha o placar
-        String scoreText = "Score: \nPlayer:" + player1Score + " - Computer:" + computer;
+        String scoreText = player1Score + " | " + computer;
         textRenderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
         textRenderer.setColor(Color.WHITE);
-        textRenderer.draw(scoreText, 10, drawable.getSurfaceHeight() - 30);
+        textRenderer.draw(scoreText, (drawable.getSurfaceWidth() / 2) - 30, drawable.getSurfaceHeight() - 30);
         textRenderer.endRendering();
 
         // Atualiza o estado do jogo
         update();
     }
 
-    // Atualiza o estado do jogo (movimento da bola, colisões, placar)
     private void update() {
-        // Movimenta automaticamente a raquete do computador
+    	// Movimenta automaticamente a raquete do computador
         if (ballX > 0) {
             if (ballY > paddle2Y) {
                 paddle2Y += 1;
@@ -127,7 +168,6 @@ public class Cena implements GLEventListener{
         paddle1Y = collisionPaddleWall(paddle1Y, paddleHeight, yMax, yMin);
         paddle2Y = collisionPaddleWall(paddle2Y, paddleHeight, yMax, yMin);
         
-
         // Verifica colisão com as raquetes e adiciona variação aleatória na direção vertical da bola
         if ((ballX - ballSize / 2 <= -95 + paddleWidth) && (ballY >= paddle1Y - paddleHeight / 2 && ballY <= paddle1Y + paddleHeight / 2)) {
             ballDX *= -1;
@@ -136,7 +176,6 @@ public class Cena implements GLEventListener{
             ballDX *= -1;
             ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1
         } 
-        
         
         // Verifica se a bola saiu do campo e atualiza o placar
         if (ballX + ballSize / 2 >= xMax) {
@@ -147,18 +186,15 @@ public class Cena implements GLEventListener{
             resetBall();
         }
         
-        
     }
 
-    // Reseta a posição da bola para o centro e inverte sua direção horizontal
-    private void resetBall() {
+	private void resetBall() {
     	ballX = 0;
         ballY = 0;
         ballDX = rand.nextBoolean() ? 2 : -2; // Define direção horizontal aleatória
         ballDY = rand.nextInt(5) - 2; // Define direção vertical aleatória entre -2 e 2
     }
 
-    // Método não utilizado, mas necessário pela interface GLEventListener
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         GL2 gl = drawable.getGL().getGL2();
@@ -200,7 +236,6 @@ public class Cena implements GLEventListener{
         System.out.println("Reshape: " + width + ", " + height);
     }
 
-    // Método não utilizado, mas necessário pela interface GLEventListener
     @Override
     public void dispose(GLAutoDrawable drawable) {
     }
