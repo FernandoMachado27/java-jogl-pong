@@ -1,12 +1,16 @@
 package cena;
 
-import static validations.Collisions.collisionPaddleWall;
-import static validations.Collisions.collisionWallBall;
+import static cena.Collisions.collisionPaddleWall;
+import static cena.Collisions.collisionWallBall;
 import static cena.Design.design;
+import static cena.Menu.menu;
 
 import java.awt.Font;
 import java.util.Random;
 
+import javax.swing.JOptionPane;
+
+import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
@@ -40,6 +44,9 @@ public class Cena implements GLEventListener{
     private Random rand = new Random();
     private Ball ball = new Ball();
     private Textura textura;
+    int op;
+	private int menuChoice;
+	private static GLWindow window = null;
 
     public Cena() {
         // Define os limites do campo de jogo
@@ -60,6 +67,9 @@ public class Cena implements GLEventListener{
         
         player1Score = 0;
         computer = 0;
+        
+        // Exibe o menu apenas uma vez quando a cena é criada
+        menuChoice = menu();
     }
 
     @Override
@@ -74,9 +84,26 @@ public class Cena implements GLEventListener{
     
     @Override
     public void display(GLAutoDrawable drawable) {
+    	
+    	if (menuChoice == JOptionPane.YES_OPTION) {
+    		design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
+		} else {
+			System.exit(0);
+		}
+    	
     	// Método chamado para cada quadro de animação, onde ocorre o desenho do jogo
-    	design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
+    	//design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
 
+    	// Desenha o triângulo se o player1Score for igual a 2
+        if (player1Score >= 2) {
+            GL2 gl = drawable.getGL().getGL2();
+            gl.glBegin(GL2.GL_TRIANGLES);
+            gl.glVertex2f(0, 20); // Ponto superior
+            gl.glVertex2f(-20, -20); // Ponto inferior esquerdo
+            gl.glVertex2f(20, -20); // Ponto inferior direito
+            gl.glEnd();
+        }
+    	
         // Atualiza o estado do jogo
         update();
     }
