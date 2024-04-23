@@ -16,6 +16,15 @@ public class Menu {
 	    
 	    return JOptionPane.showConfirmDialog(null, "Você deseja continuar?", "Confirmação", JOptionPane.YES_NO_OPTION);
 	}
+	
+	public static int menuPhaseTwo() {
+		return JOptionPane.showConfirmDialog(null, "Parabens, você passou para a fase 2!! \n"
+				+ "Deseja continuar? O progresso não será salvo.", "Confirmação", JOptionPane.YES_NO_OPTION);
+	}
+	
+	public static void menuLose() {
+		JOptionPane.showMessageDialog(null, "Você perdeu :( ", "Aviso", JOptionPane.WARNING_MESSAGE);
+	}
 
 }
 	

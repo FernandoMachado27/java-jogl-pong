@@ -3,7 +3,7 @@ package cena;
 import static cena.Collisions.collisionPaddleWall;
 import static cena.Collisions.collisionWallBall;
 import static cena.Design.design;
-import static cena.Menu.menu;
+import static cena.Menu.*;
 
 import java.awt.Font;
 import java.util.Random;
@@ -65,7 +65,7 @@ public class Cena implements GLEventListener{
         // Inicialize o objeto de textura
         textura = new Textura(3); 	
         
-        player1Score = 0;
+        player1Score = -1;
         computer = 0;
         
         // Exibe o menu apenas uma vez quando a cena é criada
@@ -90,20 +90,7 @@ public class Cena implements GLEventListener{
 		} else {
 			System.exit(0);
 		}
-    	
-    	// Método chamado para cada quadro de animação, onde ocorre o desenho do jogo
-    	//design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
-
-    	// Desenha o triângulo se o player1Score for igual a 2
-        if (player1Score >= 2) {
-            GL2 gl = drawable.getGL().getGL2();
-            gl.glBegin(GL2.GL_TRIANGLES);
-            gl.glVertex2f(0, 20); // Ponto superior
-            gl.glVertex2f(-20, -20); // Ponto inferior esquerdo
-            gl.glVertex2f(20, -20); // Ponto inferior direito
-            gl.glEnd();
-        }
-    	
+        
         // Atualiza o estado do jogo
         update();
     }
