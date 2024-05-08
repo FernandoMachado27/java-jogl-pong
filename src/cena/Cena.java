@@ -2,7 +2,7 @@ package cena;
 
 import static cena.Collisions.collisionPaddleWall;
 import static cena.Collisions.collisionWallBall;
-import static cena.Design.design;
+import static cena.Design.*;
 import static cena.Menu.*;
 
 import java.awt.Font;
@@ -47,7 +47,11 @@ public class Cena implements GLEventListener{
     int op;
 	private int menuChoice;
 	private static GLWindow window = null;
-
+	private int phase;
+	private boolean isPhaseTwoStarted = false;  // Variável para controlar o início da fase dois
+	private int[] triX = {0, -10, 10}; // X-coordinates of triangle vertices
+	private int[] triY = {30, 0, 0};   // Y-coordinates of triangle vertices
+	
     public Cena() {
         // Define os limites do campo de jogo
         xMin = -100;
@@ -65,7 +69,7 @@ public class Cena implements GLEventListener{
         // Inicialize o objeto de textura
         textura = new Textura(3); 	
         
-        player1Score = -1;
+        player1Score = 120;
         computer = 0;
         
         // Exibe o menu apenas uma vez quando a cena é criada
@@ -84,14 +88,30 @@ public class Cena implements GLEventListener{
     
     @Override
     public void display(GLAutoDrawable drawable) {
-    	
-    	if (menuChoice == JOptionPane.YES_OPTION) {
-    		design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
-		} else {
-			System.exit(0);
-		}
+    	GL2 gl = drawable.getGL().getGL2();
         
-        // Atualiza o estado do jogo
+        if (menuChoice == JOptionPane.YES_OPTION) {
+            if (!isPhaseTwoStarted || phase == 1) {
+                design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
+            }
+            if (player1Score >= 200 && !isPhaseTwoStarted) {
+                isPhaseTwoStarted = true; // Marca a fase dois como iniciada
+                menuChoice = menuPhaseTwo();
+                if (menuChoice == JOptionPane.YES_OPTION) {
+                    phase = 2; // Altera para a fase 2
+                    // Chama o design específico da fase dois
+                    designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
+                } else {
+                    System.exit(0);
+                }
+            } else if (phase == 2) {
+                // Continua chamando o design da fase dois em subsequentes chamadas de display
+                designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
+            }
+        } else {
+            System.exit(0);
+        }
+        
         update();
     }
 
@@ -127,13 +147,27 @@ public class Cena implements GLEventListener{
         
         // Verifica se a bola saiu do campo e atualiza o placar
         if (ballX + ballSize / 2 >= xMax) {
-            player1Score++;
+            player1Score += 40;  // Cada ponto vale 40
+            if (player1Score >= 200 && !isPhaseTwoStarted) {
+                // Inicia a fase dois apenas se o jogador 1 chegar a 200 primeiro
+                isPhaseTwoStarted = true;
+                int result = Menu.menuPhaseTwo();
+                if (result == JOptionPane.YES_OPTION) {
+                    phase = 2;  // Define a fase como 2
+                } else {
+                    System.exit(0);
+                }
+            }
             resetBall();
         } else if (ballX - ballSize / 2 <= xMin) {
-            computer++;
+            computer += 40;  // Cada ponto vale 40
+            if (computer >= 200) {
+                // Encerra o jogo se o computador chegar a 200 primeiro
+                Menu.menuLose();
+                System.exit(0);
+            }
             resetBall();
         }
-        
     }
 
 	private void resetBall() {
@@ -182,6 +216,33 @@ public class Cena implements GLEventListener{
         gl.glLoadIdentity();
 
         System.out.println("Reshape: " + width + ", " + height);
+    }
+    
+    private boolean checkCollisionWithTriangle(int ballX, int ballY, int ballSize) {
+        // Verifica cada aresta do triângulo
+        for (int i = 0; i < triX.length; i++) {
+            int nextIndex = (i + 1) % triX.length;
+            if (lineCircleCollide(triX[i], triY[i], triX[nextIndex], triY[nextIndex], ballX, ballY, ballSize / 2)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Método para verificar colisão entre uma linha e um círculo
+    private boolean lineCircleCollide(int x1, int y1, int x2, int y2, int circleX, int circleY, int radius) {
+        float dx = x2 - x1;
+        float dy = y2 - y1;
+        float a = dx * dx + dy * dy;
+        float b = 2 * (dx * (x1 - circleX) + dy * (y1 - circleY));
+        float c = (x1 - circleX) * (x1 - circleX) + (y1 - circleY) * (y1 - circleY) - radius * radius;
+        float disc = b * b - 4 * a * c;
+        if (disc < 0) return false;
+        float sqrtd = (float)Math.sqrt(disc);
+        float t1 = (-b + sqrtd) / (2 * a);
+        float t2 = (-b - sqrtd) / (2 * a);
+        if ((t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1)) return true;
+        return false;
     }
 
     @Override
