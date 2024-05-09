@@ -86,47 +86,62 @@ public class Design {
 	public static void designPhaseTwo(GLAutoDrawable drawable, float xMin, float xMax, float yMin, float yMax, Textura textura,
 			int paddle1Y, int paddle2Y, int paddleHeight, int paddleWidth, int ballSize, Ball ball, int player1Score,
 			int computer, TextRenderer textRenderer, int ballX, int ballY) {
-		GL2 gl = drawable.getGL().getGL2();
-// Limpa a tela
-		gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+    GL2 gl = drawable.getGL().getGL2();
+    // Limpa a tela
+    gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 
-// Reseta as transformações
-		gl.glLoadIdentity();
-// Define a projeção ortográfica com base nos limites do campo
-		gl.glOrtho(xMin, xMax, yMin, yMax, -1, 1);
+    // Reseta as transformações
+    gl.glLoadIdentity();
+    // Define a projeção ortográfica com base nos limites do campo
+    gl.glOrtho(xMin, xMax, yMin, yMax, -1, 1);
 
-// Desenha o fundo com a textura
-		gl.glEnable(GL2.GL_TEXTURE_2D);
-		textura.vetTextures[0].bind(gl);
-		gl.glBegin(GL2.GL_QUADS);
-		gl.glTexCoord2f(0.0f, 0.0f);
-		gl.glVertex2f(xMin, yMin);
-		gl.glTexCoord2f(1.0f, 0.0f);
-		gl.glVertex2f(xMax, yMin);
-		gl.glTexCoord2f(1.0f, 1.0f);
-		gl.glVertex2f(xMax, yMax);
-		gl.glTexCoord2f(0.0f, 1.0f);
-		gl.glVertex2f(xMin, yMax);
-		gl.glEnd();
-		gl.glDisable(GL2.GL_TEXTURE_2D);
+    // Desenha o fundo com a textura
+    gl.glEnable(GL2.GL_TEXTURE_2D);
+    textura.vetTextures[0].bind(gl);
+    gl.glBegin(GL2.GL_QUADS);
+    gl.glTexCoord2f(0.0f, 0.0f);
+    gl.glVertex2f(xMin, yMin);
+    gl.glTexCoord2f(1.0f, 0.0f);
+    gl.glVertex2f(xMax, yMin);
+    gl.glTexCoord2f(1.0f, 1.0f);
+    gl.glVertex2f(xMax, yMax);
+    gl.glTexCoord2f(0.0f, 1.0f);
+    gl.glVertex2f(xMin, yMax);
+    gl.glEnd();
+    gl.glDisable(GL2.GL_TEXTURE_2D);
 
-// Desenha as raquetes
-		drawPaddle(gl, -95, paddle1Y, paddleWidth, paddleHeight, textura);
-		drawPaddle(gl, 95 - paddleWidth, paddle2Y, paddleWidth, paddleHeight, textura);
+ // Desenha os obstáculos com as correções
+    gl.glPushMatrix();
+    gl.glColor3f(1, 1, 1); // Branco
+    // Primeiro obstáculo em (-30, 20) com tamanho (10, 10)
+    gl.glBegin(GL2.GL_QUADS);
+    gl.glVertex2f(-30, 20);
+    gl.glVertex2f(-20, 20);
+    gl.glVertex2f(-20, 30);
+    gl.glVertex2f(-30, 30);
+    gl.glEnd();
+    // Segundo obstáculo em (20, -30) com tamanho (10, 10)
+    gl.glBegin(GL2.GL_QUADS);
+    gl.glVertex2f(20, -30);
+    gl.glVertex2f(30, -30);
+    gl.glVertex2f(30, -20);
+    gl.glVertex2f(20, -20);
+    gl.glEnd();
+    gl.glPopMatrix();
 
-// Desenha a bolinha
-		drawBall(gl, ballX, ballY, ballSize, ball);
+    // Desenha as raquetes
+    drawPaddle(gl, -95, paddle1Y, paddleWidth, paddleHeight, textura);
+    drawPaddle(gl, 95 - paddleWidth, paddle2Y, paddleWidth, paddleHeight, textura);
 
-// Desenha o obstáculo triângulo
-		drawTriangleObstacle(gl);
+    // Desenha a bolinha
+    drawBall(gl, ballX, ballY, ballSize, ball);
 
-// Desenha o placar
-		textRenderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
-		textRenderer.setColor(Color.WHITE);
-		textRenderer.draw(player1Score + " | " + computer, (drawable.getSurfaceWidth() / 2) - 30,
-				drawable.getSurfaceHeight() - 30);
-		textRenderer.endRendering();
-	}
+    // Desenha o placar
+    textRenderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
+    textRenderer.setColor(Color.WHITE);
+    textRenderer.draw(player1Score + " | " + computer, (drawable.getSurfaceWidth() / 2) - 30, drawable.getSurfaceHeight() - 30);
+    textRenderer.endRendering();
+}
 
 	private static void drawPaddle(GL2 gl, int x, int paddleY, int paddleWidth, int paddleHeight, Textura textura) {
 		gl.glEnable(GL2.GL_TEXTURE_2D);

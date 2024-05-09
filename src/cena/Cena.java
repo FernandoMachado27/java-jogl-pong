@@ -116,7 +116,7 @@ public class Cena implements GLEventListener{
     }
 
     private void update() {
-    	// Movimenta automaticamente a raquete do computador
+        // Movimenta automaticamente a raquete do computador
         if (ballX > 0) {
             if (ballY > paddle2Y) {
                 paddle2Y += 1;
@@ -132,42 +132,72 @@ public class Cena implements GLEventListener{
         // Verifica colisão com as paredes superior e inferior
         ballDY = collisionWallBall(ballY, ballSize, yMax, yMin, ballDY);
         
-        // Verifica colisão das raquetes com as paredes superior e inferior
+     // Verifica colisão das raquetes com as paredes superior e inferior
         paddle1Y = collisionPaddleWall(paddle1Y, paddleHeight, yMax, yMin);
         paddle2Y = collisionPaddleWall(paddle2Y, paddleHeight, yMax, yMin);
-        
-        // Verifica colisão com as raquetes e adiciona variação aleatória na direção vertical da bola
-        if ((ballX - ballSize / 2 <= -95 + paddleWidth) && (ballY >= paddle1Y - paddleHeight / 2 && ballY <= paddle1Y + paddleHeight / 2)) {
-            ballDX *= -1;
-            ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1
-        } else if ((ballX + ballSize / 2 >= 95 - paddleWidth) && (ballY >= paddle2Y - paddleHeight / 2 && ballY <= paddle2Y + paddleHeight / 2)) {
+
+        // Verifica colisão com as raquetes
+        if ((ballX - ballSize / 2 <= -95 + paddleWidth) && (ballY >= paddle1Y - paddleHeight / 2 && ballY <= paddle1Y + paddleHeight / 2) ||
+            (ballX + ballSize / 2 >= 95 - paddleWidth) && (ballY >= paddle2Y - paddleHeight / 2 && ballY <= paddle2Y + paddleHeight / 2)) {
             ballDX *= -1;
             ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1
         } 
-        
-        // Verifica se a bola saiu do campo e atualiza o placar
-        if (ballX + ballSize / 2 >= xMax) {
-            player1Score += 40;  // Cada ponto vale 40
-            if (player1Score >= 200 && !isPhaseTwoStarted) {
-                // Inicia a fase dois apenas se o jogador 1 chegar a 200 primeiro
-                isPhaseTwoStarted = true;
-                int result = Menu.menuPhaseTwo();
-                if (result == JOptionPane.YES_OPTION) {
-                    phase = 2;  // Define a fase como 2
-                } else {
-                    System.exit(0);
-                }
+
+        // Verifica colisão com os obstáculos apenas na fase 2
+        if (phase == 2) {
+            boolean collided = false;
+            if (checkCollisionWithObstacle(ballX, ballY, ballSize, -30, 20, 10, 10)) {
+                ballDX *= -1;
+                ballDY *= -1;
+                collided = true;
             }
-            resetBall();
-        } else if (ballX - ballSize / 2 <= xMin) {
-            computer += 40;  // Cada ponto vale 40
-            if (computer >= 200) {
-                // Encerra o jogo se o computador chegar a 200 primeiro
-                Menu.menuLose();
-                System.exit(0);
+            if (checkCollisionWithObstacle(ballX, ballY, ballSize, 20, -30, 10, 10)) {
+                ballDX *= -1;
+                ballDY *= -1;
+                collided = true;
             }
-            resetBall();
+            if (collided) {
+                // Aplica um impulso adicional para afastar a bola da área de colisão
+                ballX += 2 * ballDX;
+                ballY += 2 * ballDY;
+            }
         }
+
+        // Verifica se a bola saiu do campo e atualiza o placar
+        if (ballX + ballSize / 2 >= xMax || ballX - ballSize / 2 <= xMin) {
+            if (ballX + ballSize / 2 >= xMax) {
+                player1Score += 40;
+            } else {
+                computer += 40;
+            }
+            // Condições para início da fase 2 ou término do jogo
+            if ((player1Score >= 200 || computer >= 200) && !isPhaseTwoStarted) {
+                isPhaseTwoStarted = true;
+                phase = 2;
+                menuPhaseTwo();  // Supondo que este método manipula a transição de fases
+            }
+            resetBall();  // Reseta a posição da bola
+        }
+    }
+    
+ // Método para verificar colisão com um obstáculo retangular
+    private boolean checkCollisionWithObstacle(int ballX, int ballY, int ballSize, int obsX, int obsY, int width, int height) {
+        int halfBallSize = ballSize / 2;
+        int ballLeft = ballX - halfBallSize;
+        int ballRight = ballX + halfBallSize;
+        int ballTop = ballY + halfBallSize;
+        int ballBottom = ballY - halfBallSize;
+
+        int obsLeft = obsX;
+        int obsRight = obsX + width;
+        int obsTop = obsY + height;
+        int obsBottom = obsY;
+
+        // Verifica se há sobreposição nos eixos x e y
+        boolean overlapX = (ballLeft < obsRight) && (ballRight > obsLeft);
+        boolean overlapY = (ballBottom < obsTop) && (ballTop > obsBottom);
+
+        return overlapX && overlapY;
     }
 
 	private void resetBall() {
