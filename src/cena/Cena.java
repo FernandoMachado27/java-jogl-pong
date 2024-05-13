@@ -254,33 +254,6 @@ public class Cena implements GLEventListener{
 
         System.out.println("Reshape: " + width + ", " + height);
     }
-    
-    private boolean checkCollisionWithTriangle(int ballX, int ballY, int ballSize) {
-        // Verifica cada aresta do triângulo
-        for (int i = 0; i < triX.length; i++) {
-            int nextIndex = (i + 1) % triX.length;
-            if (lineCircleCollide(triX[i], triY[i], triX[nextIndex], triY[nextIndex], ballX, ballY, ballSize / 2)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Método para verificar colisão entre uma linha e um círculo
-    private boolean lineCircleCollide(int x1, int y1, int x2, int y2, int circleX, int circleY, int radius) {
-        float dx = x2 - x1;
-        float dy = y2 - y1;
-        float a = dx * dx + dy * dy;
-        float b = 2 * (dx * (x1 - circleX) + dy * (y1 - circleY));
-        float c = (x1 - circleX) * (x1 - circleX) + (y1 - circleY) * (y1 - circleY) - radius * radius;
-        float disc = b * b - 4 * a * c;
-        if (disc < 0) return false;
-        float sqrtd = (float)Math.sqrt(disc);
-        float t1 = (-b + sqrtd) / (2 * a);
-        float t2 = (-b - sqrtd) / (2 * a);
-        if ((t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1)) return true;
-        return false;
-    }
 
     @Override
     public void dispose(GLAutoDrawable drawable) {
