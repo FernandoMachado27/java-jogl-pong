@@ -23,6 +23,9 @@ public class KeyBoard implements KeyListener {
             case KeyEvent.VK_ESCAPE:
                 System.exit(0);
                 break;
+            case KeyEvent.VK_P: // Detecta a tecla "P"
+                cena.togglePause(); // Alterna o estado de pausa
+                break;
         }
     }
 

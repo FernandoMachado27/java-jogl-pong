@@ -87,6 +87,7 @@ public class Design {
 			int paddle1Y, int paddle2Y, int paddleHeight, int paddleWidth, int ballSize, Ball ball, int player1Score,
 			int computer, TextRenderer textRenderer, int ballX, int ballY) {
     GL2 gl = drawable.getGL().getGL2();
+    
     // Limpa a tela
     gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 

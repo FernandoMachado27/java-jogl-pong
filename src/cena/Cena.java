@@ -16,10 +16,11 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.awt.TextRenderer;
+import com.jogamp.opengl.util.gl2.GLUT;
 
 import textura.Textura;
 
-public class Cena implements GLEventListener{
+public class Cena implements GLEventListener {
     // Variáveis para definir os limites do campo de jogo
     private float xMin, xMax, yMin, yMax, zMin, zMax;
     // Dimensões das raquetes
@@ -45,13 +46,12 @@ public class Cena implements GLEventListener{
     private Ball ball = new Ball();
     private Textura textura;
     int op;
-	private int menuChoice;
-	private static GLWindow window = null;
-	private int phase;
-	private boolean isPhaseTwoStarted = false;  // Variável para controlar o início da fase dois
-	private int[] triX = {0, -10, 10}; // X-coordinates of triangle vertices
-	private int[] triY = {30, 0, 0};   // Y-coordinates of triangle vertices
-	
+    private int menuChoice;
+    private static GLWindow window = null;
+    private int phase;
+    private boolean isPhaseTwoStarted = false;  // Variável para controlar o início da fase dois
+    private boolean isPaused = false; // Variável para controlar o estado de pausa
+
     public Cena() {
         // Define os limites do campo de jogo
         xMin = -100;
@@ -65,13 +65,13 @@ public class Cena implements GLEventListener{
 
         textRenderer = new TextRenderer(new Font("Arial", Font.BOLD, 24));
         glu = new GLU();
-        
+
         // Inicialize o objeto de textura
-        textura = new Textura(3); 	
-        
+        textura = new Textura(3);
+
         player1Score = 120;
         computer = 0;
-        
+
         // Exibe o menu apenas uma vez quando a cena é criada
         menuChoice = menu();
     }
@@ -79,40 +79,41 @@ public class Cena implements GLEventListener{
     @Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-        
+
         textura.gerarTextura(gl, "imagens/planoDeFundo.jpg", 0);
         textura.gerarTextura(gl, "imagens/raquetes.jpg", 1);
         textura.gerarTextura(gl, "imagens/bola.jpg", 2);
     }
 
-    
     @Override
     public void display(GLAutoDrawable drawable) {
-    	GL2 gl = drawable.getGL().getGL2();
-        
-        if (menuChoice == JOptionPane.YES_OPTION) {
-            if (!isPhaseTwoStarted || phase == 1) {
-                design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
-            }
-            if (player1Score >= 200 && !isPhaseTwoStarted) {
-                isPhaseTwoStarted = true; // Marca a fase dois como iniciada
-                menuChoice = menuPhaseTwo();
-                if (menuChoice == JOptionPane.YES_OPTION) {
-                    phase = 2; // Altera para a fase 2
-                    // Chama o design específico da fase dois
-                    designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
-                } else {
-                    System.exit(0);
+        GL2 gl = drawable.getGL().getGL2();
+
+        if (!isPaused) { // Apenas atualiza e desenha se o jogo não estiver pausado
+            if (menuChoice == JOptionPane.YES_OPTION) {
+                if (!isPhaseTwoStarted || phase == 1) {
+                    design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
                 }
-            } else if (phase == 2) {
-                // Continua chamando o design da fase dois em subsequentes chamadas de display
-                designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
+                if (player1Score >= 200 && !isPhaseTwoStarted) {
+                    isPhaseTwoStarted = true; // Marca a fase dois como iniciada
+                    menuChoice = menuPhaseTwo();
+                    if (menuChoice == JOptionPane.YES_OPTION) {
+                        phase = 2; // Altera para a fase 2
+                        // Chama o design específico da fase dois
+                        designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
+                    } else {
+                        System.exit(0);
+                    }
+                } else if (phase == 2) {
+                    // Continua chamando o design da fase dois em subsequentes chamadas de display
+                    designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
+                }
+            } else {
+                System.exit(0);
             }
-        } else {
-            System.exit(0);
+
+            update();
         }
-        
-        update();
     }
 
     private void update() {
@@ -131,8 +132,8 @@ public class Cena implements GLEventListener{
 
         // Verifica colisão com as paredes superior e inferior
         ballDY = collisionWallBall(ballY, ballSize, yMax, yMin, ballDY);
-        
-     // Verifica colisão das raquetes com as paredes superior e inferior
+
+        // Verifica colisão das raquetes com as paredes superior e inferior
         paddle1Y = collisionPaddleWall(paddle1Y, paddleHeight, yMax, yMin);
         paddle2Y = collisionPaddleWall(paddle2Y, paddleHeight, yMax, yMin);
 
@@ -141,7 +142,7 @@ public class Cena implements GLEventListener{
             (ballX + ballSize / 2 >= 95 - paddleWidth) && (ballY >= paddle2Y - paddleHeight / 2 && ballY <= paddle2Y + paddleHeight / 2)) {
             ballDX *= -1;
             ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1
-        } 
+        }
 
         // Verifica colisão com os obstáculos apenas na fase 2
         if (phase == 2) {
@@ -179,8 +180,8 @@ public class Cena implements GLEventListener{
             resetBall();  // Reseta a posição da bola
         }
     }
-    
- // Método para verificar colisão com um obstáculo retangular
+
+    // Método para verificar colisão com um obstáculo retangular
     private boolean checkCollisionWithObstacle(int ballX, int ballY, int ballSize, int obsX, int obsY, int width, int height) {
         int halfBallSize = ballSize / 2;
         int ballLeft = ballX - halfBallSize;
@@ -200,18 +201,18 @@ public class Cena implements GLEventListener{
         return overlapX && overlapY;
     }
 
-	private void resetBall() {
-    	ballX = 0;
+    private void resetBall() {
+        ballX = 0;
         ballY = 0;
-        
+
         if (phase == 2) {
-        	ballDX = rand.nextBoolean() ? 2 : -2; // Define direção horizontal aleatória (para direita ou para esquerda)
-        	ballDY = 0; // Sem movimento vertical
+            ballDX = rand.nextBoolean() ? 2 : -2; // Define direção horizontal aleatória (para direita ou para esquerda)
+            ballDY = 0; // Sem movimento vertical
         } else {
-        	ballDX = rand.nextBoolean() ? 2 : -2; // Define direção horizontal aleatória
+            ballDX = rand.nextBoolean() ? 2 : -2; // Define direção horizontal aleatória
             ballDY = rand.nextInt(5) - 2; // Define direção vertical aleatória entre -2 e 2
         }
-        
+
     }
 
     @Override
@@ -259,4 +260,7 @@ public class Cena implements GLEventListener{
     public void dispose(GLAutoDrawable drawable) {
     }
 
+    public void togglePause() {
+        isPaused = !isPaused; // Alterna o estado de pausa
+    }
 }
