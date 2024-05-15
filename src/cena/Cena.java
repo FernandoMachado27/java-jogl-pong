@@ -99,12 +99,13 @@ public class Cena implements GLEventListener {
                     menuChoice = menuPhaseTwo();
                     if (menuChoice == JOptionPane.YES_OPTION) {
                         phase = 2; // Altera para a fase 2
-                        // Chama o design específico da fase dois
-                        designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
+                        player1Score = 0; // Zera os pontos do jogador
+                        computer = 0; // Zera os pontos do computador
                     } else {
                         System.exit(0);
                     }
-                } else if (phase == 2) {
+                }
+                if (phase == 2) {
                     // Continua chamando o design da fase dois em subsequentes chamadas de display
                     designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
                 }
@@ -175,6 +176,8 @@ public class Cena implements GLEventListener {
             if ((player1Score >= 200 || computer >= 200) && !isPhaseTwoStarted) {
                 isPhaseTwoStarted = true;
                 phase = 2;
+                player1Score = 0; // Zera os pontos do jogador
+                computer = 0; // Zera os pontos do computador
                 menuPhaseTwo();  // Supondo que este método manipula a transição de fases
             }
             resetBall();  // Reseta a posição da bola

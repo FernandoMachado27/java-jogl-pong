@@ -18,7 +18,7 @@ public class Menu {
 	}
 	
 	public static int menuPhaseTwo() {
-		return JOptionPane.showConfirmDialog(null, "Parabens, você passou para a fase 2!! \n"
+		return JOptionPane.showConfirmDialog(null, "Parabéns, você passou para a fase 2!! \n"
 				+ "Deseja continuar? O progresso não será salvo.", "Confirmação", JOptionPane.YES_NO_OPTION);
 	}
 	
