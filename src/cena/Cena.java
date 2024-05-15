@@ -112,6 +112,15 @@ public class Cena implements GLEventListener {
             } else {
                 System.exit(0);
             }
+            
+            if (computer >= 200) {
+            	int response = JOptionPane.showConfirmDialog(null, "O computador venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
+                if (response == JOptionPane.YES_OPTION) {
+                    resetGame();
+                } else {
+                	System.exit(0);
+                }
+            }
 
             update();
         }
@@ -172,6 +181,7 @@ public class Cena implements GLEventListener {
             } else {
                 computer += 40;
             }
+            
             // Condições para exibir mensagem de vitória ou derrota
             if (phase == 2) {
                 if (player1Score >= 200) {
