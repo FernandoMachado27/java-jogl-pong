@@ -172,13 +172,23 @@ public class Cena implements GLEventListener {
             } else {
                 computer += 40;
             }
-            // Condições para início da fase 2 ou término do jogo
-            if ((player1Score >= 200 || computer >= 200) && !isPhaseTwoStarted) {
-                isPhaseTwoStarted = true;
-                phase = 2;
-                player1Score = 0; // Zera os pontos do jogador
-                computer = 0; // Zera os pontos do computador
-                menuPhaseTwo();  // Supondo que este método manipula a transição de fases
+            // Condições para exibir mensagem de vitória ou derrota
+            if (phase == 2) {
+                if (player1Score >= 200) {
+                    int response = JOptionPane.showConfirmDialog(null, "Você venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
+                    if (response == JOptionPane.YES_OPTION) {
+                        resetGame();
+                    } else {
+                        System.exit(0);
+                    }
+                } else if (computer >= 200) {
+                    int response = JOptionPane.showConfirmDialog(null, "O computador venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
+                    if (response == JOptionPane.YES_OPTION) {
+                        resetGame();
+                    } else {
+                        System.exit(0);
+                    }
+                }
             }
             resetBall();  // Reseta a posição da bola
         }
@@ -216,6 +226,17 @@ public class Cena implements GLEventListener {
             ballDY = rand.nextInt(5) - 2; // Define direção vertical aleatória entre -2 e 2
         }
 
+    }
+
+    private void resetGame() {
+        phase = 1;
+        isPhaseTwoStarted = false;
+        player1Score = 0;
+        computer = 0;
+        ballX = 0;
+        ballY = 0;
+        ballDX = 2;
+        ballDY = 2;
     }
 
     @Override
