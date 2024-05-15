@@ -23,6 +23,12 @@ public class KeyBoard implements KeyListener {
             case KeyEvent.VK_ESCAPE:
                 System.exit(0);
                 break;
+            case KeyEvent.VK_P: 
+                cena.togglePause();
+                break;
+            case KeyEvent.VK_S:
+                System.exit(0);
+                break;
         }
     }
 
