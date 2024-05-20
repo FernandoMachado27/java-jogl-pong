@@ -153,7 +153,9 @@ public class Cena implements GLEventListener {
         if ((ballX - ballSize / 2 <= -95 + paddleWidth) && (ballY >= paddle1Y - paddleHeight / 2 && ballY <= paddle1Y + paddleHeight / 2) ||
             (ballX + ballSize / 2 >= 95 - paddleWidth) && (ballY >= paddle2Y - paddleHeight / 2 && ballY <= paddle2Y + paddleHeight / 2)) {
             ballDX *= -1;
-            ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1
+            if (phase == 2) {
+                ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1 na fase 2
+            }
         }
 
         // Verifica colisão com os obstáculos apenas na fase 2
@@ -183,7 +185,7 @@ public class Cena implements GLEventListener {
             } else {
                 computer += 40;
             }
-            
+
             // Condições para exibir mensagem de vitória ou derrota
             if (phase == 2) {
                 if (player1Score >= 200) {
