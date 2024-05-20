@@ -123,6 +123,8 @@ public class Cena implements GLEventListener {
             }
 
             update();
+        } else {
+        	renderPauseMessage(drawable);
         }
     }
 
@@ -222,6 +224,13 @@ public class Cena implements GLEventListener {
         boolean overlapY = (ballBottom < obsTop) && (ballTop > obsBottom);
 
         return overlapX && overlapY;
+    }
+    
+    private void renderPauseMessage(GLAutoDrawable drawable) {
+        textRenderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
+        textRenderer.setColor(1.0f, 1.0f, 1.0f, 1.0f); // Define a cor do texto para vermelho
+        textRenderer.draw("Jogo pausado", drawable.getSurfaceWidth() / 2 - 70, drawable.getSurfaceHeight() / 2); // Renderiza o texto no centro da tela
+        textRenderer.endRendering();
     }
 
     private void resetBall() {
