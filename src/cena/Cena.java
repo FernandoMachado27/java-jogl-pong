@@ -236,21 +236,12 @@ public class Cena implements GLEventListener {
     }
 
     private void resetBall() {
-        ballX = 0;
-        ballY = 0;
+        ballX = 0;  // Centraliza a bola horizontalmente
+        ballY = 0;  // Centraliza a bola verticalmente
 
         if (phase == 2) {
             ballDX = rand.nextBoolean() ? 2 : -2; // Define direção horizontal aleatória (para direita ou para esquerda)
-            ballDY = rand.nextBoolean() ? 1 : -1; // Define direção vertical não nula (para cima ou para baixo)
-
-            // Evita direções que levem aos obstáculos
-            if (ballDX == 2 && ballDY == 1) {
-                // Ajusta para não ir na direção do obstáculo (20, -30)
-                ballDY = -1;
-            } else if (ballDX == -2 && ballDY == -1) {
-                // Ajusta para não ir na direção do obstáculo (-30, 20)
-                ballDY = 1;
-            }
+            ballDY = 0; // Sem movimento vertical para evitar obstáculos
         } else {
             ballDX = rand.nextBoolean() ? 2 : -2; // Define direção horizontal aleatória
             ballDY = rand.nextInt(5) - 2; // Define direção vertical aleatória entre -2 e 2
