@@ -51,6 +51,7 @@ public class Cena implements GLEventListener {
     private int phase;
     private boolean isPhaseTwoStarted = false;  // Variável para controlar o início da fase dois
     private boolean isPaused = false; // Variável para controlar o estado de pausa
+    private int playerLives = 5;
 
     public Cena() {
         // Define os limites do campo de jogo
@@ -90,28 +91,29 @@ public class Cena implements GLEventListener {
         GL2 gl = drawable.getGL().getGL2();
 
         if (!isPaused) { // Apenas atualiza e desenha se o jogo não estiver pausado
-            if (menuChoice == JOptionPane.YES_OPTION) {
-                if (!isPhaseTwoStarted || phase == 1) {
-                    design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
-                }
-                if (player1Score >= 200 && !isPhaseTwoStarted) {
-                    isPhaseTwoStarted = true; // Marca a fase dois como iniciada
-                    menuChoice = menuPhaseTwo();
-                    if (menuChoice == JOptionPane.YES_OPTION) {
-                        phase = 2; // Altera para a fase 2
-                        player1Score = 0; // Zera os pontos do jogador
-                        computer = 0; // Zera os pontos do computador
-                    } else {
-                        System.exit(0);
-                    }
-                }
-                if (phase == 2) {
-                    // Continua chamando o design da fase dois em subsequentes chamadas de display
-                    designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY);
-                }
-            } else {
-                System.exit(0);
-            }
+        	if (menuChoice == JOptionPane.YES_OPTION) {
+        	    if (!isPhaseTwoStarted || phase == 1) {
+        	        design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY, playerLives);
+        	    }
+        	    if (player1Score >= 200 && !isPhaseTwoStarted) {
+        	        isPhaseTwoStarted = true; // Marca a fase dois como iniciada
+        	        menuChoice = menuPhaseTwo();
+        	        if (menuChoice == JOptionPane.YES_OPTION) {
+        	            phase = 2; // Altera para a fase 2
+        	            player1Score = 0; // Zera os pontos do jogador
+        	            computer = 0; // Zera os pontos do computador
+        	            playerLives = 5; // Reseta as vidas do jogador
+        	        } else {
+        	            System.exit(0);
+        	        }
+        	    }
+        	    if (phase == 2) {
+        	        // Continua chamando o design da fase dois em subsequentes chamadas de display
+        	        designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY, playerLives);
+        	    }
+        	} else {
+        	    System.exit(0);
+        	}
             
             if (computer >= 200) {
             	int response = JOptionPane.showConfirmDialog(null, "O computador venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
@@ -161,12 +163,12 @@ public class Cena implements GLEventListener {
         // Verifica colisão com os obstáculos apenas na fase 2
         if (phase == 2) {
             boolean collided = false;
-            if (checkCollisionWithObstacle(ballX, ballY, ballSize, -30, 20, 10, 10)) {
+            if (checkCollisionWithObstacle(ballX, ballY, ballSize, 0, 25, 10, 10)) {
                 ballDX *= -1;
                 ballDY *= -1;
                 collided = true;
             }
-            if (checkCollisionWithObstacle(ballX, ballY, ballSize, 20, -30, 10, 10)) {
+            if (checkCollisionWithObstacle(ballX, ballY, ballSize, 0, -25, 10, 10)) {
                 ballDX *= -1;
                 ballDY *= -1;
                 collided = true;
@@ -184,6 +186,17 @@ public class Cena implements GLEventListener {
                 player1Score += 40;
             } else {
                 computer += 40;
+                if (computer % 40 == 0) {
+                    playerLives--;
+                    if (playerLives == 0) {
+                        int response = JOptionPane.showConfirmDialog(null, "Você perdeu todas as vidas, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
+                        if (response == JOptionPane.YES_OPTION) {
+                            resetGame();
+                        } else {
+                            System.exit(0);
+                        }
+                    }
+                }
             }
 
             // Condições para exibir mensagem de vitória ou derrota
@@ -209,17 +222,17 @@ public class Cena implements GLEventListener {
     }
 
     // Método para verificar colisão com um obstáculo retangular
-    private boolean checkCollisionWithObstacle(int ballX, int ballY, int ballSize, int obsX, int obsY, int width, int height) {
+    private boolean checkCollisionWithObstacle(int ballX, int ballY, int ballSize, int obsCenterX, int obsCenterY, int width, int height) {
         int halfBallSize = ballSize / 2;
         int ballLeft = ballX - halfBallSize;
         int ballRight = ballX + halfBallSize;
         int ballTop = ballY + halfBallSize;
         int ballBottom = ballY - halfBallSize;
 
-        int obsLeft = obsX;
-        int obsRight = obsX + width;
-        int obsTop = obsY + height;
-        int obsBottom = obsY;
+        int obsLeft = obsCenterX - width / 2;
+        int obsRight = obsCenterX + width / 2;
+        int obsTop = obsCenterY + height / 2;
+        int obsBottom = obsCenterY - height / 2;
 
         // Verifica se há sobreposição nos eixos x e y
         boolean overlapX = (ballLeft < obsRight) && (ballRight > obsLeft);
@@ -235,7 +248,7 @@ public class Cena implements GLEventListener {
         textRenderer.endRendering();
     }
 
-    private void resetBall() {
+    public void resetBall() {
         ballX = 0;  // Centraliza a bola horizontalmente
         ballY = 0;  // Centraliza a bola verticalmente
 
@@ -258,6 +271,7 @@ public class Cena implements GLEventListener {
         isPhaseTwoStarted = false;
         player1Score = 0;
         computer = 0;
+        playerLives = 5; // Reinicia as vidas do jogador
         ballX = 0;
         ballY = 0;
         ballDX = 2;

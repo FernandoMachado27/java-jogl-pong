@@ -29,6 +29,9 @@ public class KeyBoard implements KeyListener {
             case KeyEvent.VK_S:
                 System.exit(0);
                 break;
+            case KeyEvent.VK_B:
+                cena.resetBall();
+                break;
         }
     }
 
