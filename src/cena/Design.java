@@ -54,9 +54,9 @@ public class Design {
         // Desenha as vidas do jogador
         String livesText = "Vidas: ";
         for (int i = 0; i < playerLives; i++) {
-            livesText += "\u2665 "; // Caracter coração em branco
+            livesText += "\u2665 "; 
         }
-        textRenderer.draw(livesText, 10, drawable.getSurfaceHeight() - 50);
+        textRenderer.draw(livesText, 10, drawable.getSurfaceHeight() - 30);
 
         textRenderer.endRendering();
     }
@@ -123,7 +123,7 @@ public class Design {
         // Desenha as vidas do jogador
         String livesText = "Vidas: ";
         for (int i = 0; i < playerLives; i++) {
-            livesText += "\u2665 "; // Caracter coração em branco
+            livesText += "\u2665 ";
         }
         textRenderer.draw(livesText, 10, drawable.getSurfaceHeight() - 50);
 

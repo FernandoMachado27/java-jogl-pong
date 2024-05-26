@@ -152,11 +152,30 @@ public class Cena implements GLEventListener {
         paddle2Y = collisionPaddleWall(paddle2Y, paddleHeight, yMax, yMin);
 
         // Verifica colisão com as raquetes
-        if ((ballX - ballSize / 2 <= -95 + paddleWidth) && (ballY >= paddle1Y - paddleHeight / 2 && ballY <= paddle1Y + paddleHeight / 2) ||
-            (ballX + ballSize / 2 >= 95 - paddleWidth) && (ballY >= paddle2Y - paddleHeight / 2 && ballY <= paddle2Y + paddleHeight / 2)) {
-            ballDX *= -1;
-            if (phase == 2) {
-                ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1 na fase 2
+        boolean ballHitLeftPaddle = (ballX - ballSize / 2 <= -95 + paddleWidth);
+        boolean ballHitRightPaddle = (ballX + ballSize / 2 >= 95 - paddleWidth);
+
+        if (ballHitLeftPaddle && (ballY >= paddle1Y - paddleHeight / 2 && ballY <= paddle1Y + paddleHeight / 2)) {
+            if (ballY == paddle1Y - paddleHeight / 2 || ballY == paddle1Y + paddleHeight / 2) {
+                // Bolinha tocou nas laterais da raquete do jogador
+                computer += 40;
+                resetBall();
+            } else {
+                ballDX *= -1;
+                if (phase == 2) {
+                    ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1 na fase 2
+                }
+            }
+        } else if (ballHitRightPaddle && (ballY >= paddle2Y - paddleHeight / 2 && ballY <= paddle2Y + paddleHeight / 2)) {
+            if (ballY == paddle2Y - paddleHeight / 2 || ballY == paddle2Y + paddleHeight / 2) {
+                // Bolinha tocou nas laterais da raquete do computador
+                player1Score += 40;
+                resetBall();
+            } else {
+                ballDX *= -1;
+                if (phase == 2) {
+                    ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1 na fase 2
+                }
             }
         }
 
@@ -198,26 +217,26 @@ public class Cena implements GLEventListener {
                     }
                 }
             }
+            resetBall();  // Reseta a posição da bola
+        }
 
-            // Condições para exibir mensagem de vitória ou derrota
-            if (phase == 2) {
-                if (player1Score >= 200) {
-                    int response = JOptionPane.showConfirmDialog(null, "Você venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
-                    if (response == JOptionPane.YES_OPTION) {
-                        resetGame();
-                    } else {
-                        System.exit(0);
-                    }
-                } else if (computer >= 200) {
-                    int response = JOptionPane.showConfirmDialog(null, "O computador venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
-                    if (response == JOptionPane.YES_OPTION) {
-                        resetGame();
-                    } else {
-                        System.exit(0);
-                    }
+        // Condições para exibir mensagem de vitória ou derrota na fase 2
+        if (phase == 2 && (player1Score >= 200 || computer >= 200)) {
+            if (player1Score >= 200) {
+                int response = JOptionPane.showConfirmDialog(null, "Você venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
+                if (response == JOptionPane.YES_OPTION) {
+                    resetGame();
+                } else {
+                    System.exit(0);
+                }
+            } else if (computer >= 200) {
+                int response = JOptionPane.showConfirmDialog(null, "O computador venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
+                if (response == JOptionPane.YES_OPTION) {
+                    resetGame();
+                } else {
+                    System.exit(0);
                 }
             }
-            resetBall();  // Reseta a posição da bola
         }
     }
 
