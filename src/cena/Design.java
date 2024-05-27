@@ -63,9 +63,9 @@ public class Design {
 
     public static void designPhaseTwo(GLAutoDrawable drawable, float xMin, float xMax, float yMin, float yMax, Textura textura,
             int paddle1Y, int paddle2Y, int paddleHeight, int paddleWidth, int ballSize, Ball ball, int player1Score,
-            int computer, TextRenderer textRenderer, int ballX, int ballY, int playerLives) {
+            int computer, TextRenderer textRenderer, int ballX, int ballY, int playerLives, int obstacle1X, int obstacle2X) {
         GL2 gl = drawable.getGL().getGL2();
-        
+
         // Limpa a tela
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 
@@ -76,7 +76,7 @@ public class Design {
 
         // Desenha o fundo com a textura
         gl.glEnable(GL2.GL_TEXTURE_2D);
-        textura.vetTextures[0].bind(gl);
+        textura.vetTextures[2].bind(gl);
         gl.glBegin(GL2.GL_QUADS);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex2f(xMin, yMin);
@@ -92,19 +92,19 @@ public class Design {
         // Desenha os obstáculos centralizados no eixo X
         gl.glPushMatrix();
         gl.glColor3f(1, 1, 1); // Branco
-        // Primeiro obstáculo em (0, 20) com tamanho (10, 10)
+        // Primeiro obstáculo com posição variável no eixo X
         gl.glBegin(GL2.GL_QUADS);
-        gl.glVertex2f(-5, 20);
-        gl.glVertex2f(5, 20);
-        gl.glVertex2f(5, 30);
-        gl.glVertex2f(-5, 30);
+        gl.glVertex2f(obstacle1X - 5, 20);
+        gl.glVertex2f(obstacle1X + 5, 20);
+        gl.glVertex2f(obstacle1X + 5, 30);
+        gl.glVertex2f(obstacle1X - 5, 30);
         gl.glEnd();
-        // Segundo obstáculo em (0, -20) com tamanho (10, 10)
+        // Segundo obstáculo com posição variável no eixo X
         gl.glBegin(GL2.GL_QUADS);
-        gl.glVertex2f(-5, -30);
-        gl.glVertex2f(5, -30);
-        gl.glVertex2f(5, -20);
-        gl.glVertex2f(-5, -20);
+        gl.glVertex2f(obstacle2X - 5, -30);
+        gl.glVertex2f(obstacle2X + 5, -30);
+        gl.glVertex2f(obstacle2X + 5, -20);
+        gl.glVertex2f(obstacle2X - 5, -20);
         gl.glEnd();
         gl.glPopMatrix();
 

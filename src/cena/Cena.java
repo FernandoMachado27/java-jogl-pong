@@ -1,5 +1,6 @@
 package cena;
 
+import static cena.Collisions.checkCollisionWithObstacle;
 import static cena.Collisions.collisionPaddleWall;
 import static cena.Collisions.collisionWallBall;
 import static cena.Design.*;
@@ -52,6 +53,12 @@ public class Cena implements GLEventListener {
     private boolean isPhaseTwoStarted = false;  // Variável para controlar o início da fase dois
     private boolean isPaused = false; // Variável para controlar o estado de pausa
     private int playerLives = 5;
+    private int obstacle1X = 0;
+    private int obstacle2X = 0;
+    private int obstacle1DX = 2;
+    private int obstacle2DX = -2;
+    private final int obstacleLimitXMin = -70;
+    private final int obstacleLimitXMax = 70;
 
     public Cena() {
         // Define os limites do campo de jogo
@@ -81,9 +88,9 @@ public class Cena implements GLEventListener {
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
 
-        textura.gerarTextura(gl, "imagens/planoDeFundo.jpg", 0);
+        textura.gerarTextura(gl, "imagens/step1.jpg", 0);
         textura.gerarTextura(gl, "imagens/raquetes.jpg", 1);
-        textura.gerarTextura(gl, "imagens/bola.jpg", 2);
+        textura.gerarTextura(gl, "imagens/step2.jpg", 2);
     }
 
     @Override
@@ -91,42 +98,42 @@ public class Cena implements GLEventListener {
         GL2 gl = drawable.getGL().getGL2();
 
         if (!isPaused) { // Apenas atualiza e desenha se o jogo não estiver pausado
-        	if (menuChoice == JOptionPane.YES_OPTION) {
-        	    if (!isPhaseTwoStarted || phase == 1) {
-        	        design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY, playerLives);
-        	    }
-        	    if (player1Score >= 200 && !isPhaseTwoStarted) {
-        	        isPhaseTwoStarted = true; // Marca a fase dois como iniciada
-        	        menuChoice = menuPhaseTwo();
-        	        if (menuChoice == JOptionPane.YES_OPTION) {
-        	            phase = 2; // Altera para a fase 2
-        	            player1Score = 0; // Zera os pontos do jogador
-        	            computer = 0; // Zera os pontos do computador
-        	            playerLives = 5; // Reseta as vidas do jogador
-        	        } else {
-        	            System.exit(0);
-        	        }
-        	    }
-        	    if (phase == 2) {
-        	        // Continua chamando o design da fase dois em subsequentes chamadas de display
-        	        designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY, playerLives);
-        	    }
-        	} else {
-        	    System.exit(0);
-        	}
-            
+            if (menuChoice == JOptionPane.YES_OPTION) {
+                if (!isPhaseTwoStarted || phase == 1) {
+                    design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY, playerLives);
+                }
+                if (player1Score >= 200 && !isPhaseTwoStarted) {
+                    isPhaseTwoStarted = true; // Marca a fase dois como iniciada
+                    menuChoice = menuPhaseTwo();
+                    if (menuChoice == JOptionPane.YES_OPTION) {
+                        phase = 2; // Altera para a fase 2
+                        player1Score = 0; // Zera os pontos do jogador
+                        computer = 0; // Zera os pontos do computador
+                        playerLives = 5; // Reseta as vidas do jogador
+                    } else {
+                        System.exit(0);
+                    }
+                }
+                if (phase == 2) {
+                    // Continua chamando o design da fase dois em subsequentes chamadas de display
+                	designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY, playerLives, obstacle1X, obstacle2X);
+                }
+            } else {
+                System.exit(0);
+            }
+
             if (computer >= 200) {
-            	int response = JOptionPane.showConfirmDialog(null, "O computador venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
+                int response = JOptionPane.showConfirmDialog(null, "O computador venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
                 if (response == JOptionPane.YES_OPTION) {
                     resetGame();
                 } else {
-                	System.exit(0);
+                    System.exit(0);
                 }
             }
 
             update();
         } else {
-        	renderPauseMessage(drawable);
+            renderPauseMessage(drawable);
         }
     }
 
@@ -144,6 +151,18 @@ public class Cena implements GLEventListener {
         ballX += ballDX;
         ballY += ballDY;
 
+        // Atualiza a posição dos obstáculos
+        obstacle1X += obstacle1DX;
+        obstacle2X += obstacle2DX;
+
+        // Verifica colisão dos obstáculos com os novos limites do campo de jogo
+        if (obstacle1X + 5 >= obstacleLimitXMax || obstacle1X - 5 <= obstacleLimitXMin) {
+            obstacle1DX *= -1;
+        }
+        if (obstacle2X + 5 >= obstacleLimitXMax || obstacle2X - 5 <= obstacleLimitXMin) {
+            obstacle2DX *= -1;
+        }
+
         // Verifica colisão com as paredes superior e inferior
         ballDY = collisionWallBall(ballY, ballSize, yMax, yMin, ballDY);
 
@@ -157,9 +176,7 @@ public class Cena implements GLEventListener {
 
         if (ballHitLeftPaddle && (ballY >= paddle1Y - paddleHeight / 2 && ballY <= paddle1Y + paddleHeight / 2)) {
             if (ballY == paddle1Y - paddleHeight / 2 || ballY == paddle1Y + paddleHeight / 2) {
-                // Bolinha tocou nas laterais da raquete do jogador
-                computer += 40;
-                resetBall();
+                ballDX *= -1;
             } else {
                 ballDX *= -1;
                 if (phase == 2) {
@@ -168,9 +185,7 @@ public class Cena implements GLEventListener {
             }
         } else if (ballHitRightPaddle && (ballY >= paddle2Y - paddleHeight / 2 && ballY <= paddle2Y + paddleHeight / 2)) {
             if (ballY == paddle2Y - paddleHeight / 2 || ballY == paddle2Y + paddleHeight / 2) {
-                // Bolinha tocou nas laterais da raquete do computador
-                player1Score += 40;
-                resetBall();
+                ballDX *= -1;
             } else {
                 ballDX *= -1;
                 if (phase == 2) {
@@ -182,18 +197,17 @@ public class Cena implements GLEventListener {
         // Verifica colisão com os obstáculos apenas na fase 2
         if (phase == 2) {
             boolean collided = false;
-            if (checkCollisionWithObstacle(ballX, ballY, ballSize, 0, 25, 10, 10)) {
+            if (checkCollisionWithObstacle(ballX, ballY, ballSize, obstacle1X, 25, 10, 10)) {
                 ballDX *= -1;
                 ballDY *= -1;
                 collided = true;
             }
-            if (checkCollisionWithObstacle(ballX, ballY, ballSize, 0, -25, 10, 10)) {
+            if (checkCollisionWithObstacle(ballX, ballY, ballSize, obstacle2X, -25, 10, 10)) {
                 ballDX *= -1;
                 ballDY *= -1;
                 collided = true;
             }
             if (collided) {
-                // Aplica um impulso adicional para afastar a bola da área de colisão
                 ballX += 2 * ballDX;
                 ballY += 2 * ballDY;
             }
@@ -240,26 +254,6 @@ public class Cena implements GLEventListener {
         }
     }
 
-    // Método para verificar colisão com um obstáculo retangular
-    private boolean checkCollisionWithObstacle(int ballX, int ballY, int ballSize, int obsCenterX, int obsCenterY, int width, int height) {
-        int halfBallSize = ballSize / 2;
-        int ballLeft = ballX - halfBallSize;
-        int ballRight = ballX + halfBallSize;
-        int ballTop = ballY + halfBallSize;
-        int ballBottom = ballY - halfBallSize;
-
-        int obsLeft = obsCenterX - width / 2;
-        int obsRight = obsCenterX + width / 2;
-        int obsTop = obsCenterY + height / 2;
-        int obsBottom = obsCenterY - height / 2;
-
-        // Verifica se há sobreposição nos eixos x e y
-        boolean overlapX = (ballLeft < obsRight) && (ballRight > obsLeft);
-        boolean overlapY = (ballBottom < obsTop) && (ballTop > obsBottom);
-
-        return overlapX && overlapY;
-    }
-    
     private void renderPauseMessage(GLAutoDrawable drawable) {
         textRenderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
         textRenderer.setColor(1.0f, 1.0f, 1.0f, 1.0f); // Define a cor do texto para vermelho
