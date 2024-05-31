@@ -133,6 +133,18 @@ public class Design {
     private static void drawPaddle(GL2 gl, int x, int paddleY, int paddleWidth, int paddleHeight, Textura textura) {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         textura.vetTextures[1].bind(gl);
+
+        // Configurar material da raquete
+        float[] materialAmbient = { 0.3f, 0.3f, 0.3f, 1.0f };  // Aumentar intensidade
+        float[] materialDiffuse = { 0.3f, 0.8f, 0.3f, 1.0f };  // Aumentar intensidade
+        float[] materialSpecular = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float materialShininess = 50.0f;
+
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, materialAmbient, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, materialDiffuse, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, materialSpecular, 0);
+        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, materialShininess);
+
         gl.glBegin(GL2.GL_QUADS);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex2f(x, paddleY - paddleHeight / 2);
@@ -149,6 +161,18 @@ public class Design {
     private static void drawBall(GL2 gl, int ballX, int ballY, int ballSize, Ball ball) {
         gl.glPushMatrix();
         gl.glTranslatef(ballX, ballY, 0);
+
+        // Configurar material da bola
+        float[] materialAmbient = { 0.3f, 0.3f, 0.3f, 1.0f };  // Aumentar intensidade
+        float[] materialDiffuse = { 0.8f, 0.3f, 0.3f, 1.0f };  // Aumentar intensidade
+        float[] materialSpecular = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float materialShininess = 50.0f;
+
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, materialAmbient, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, materialDiffuse, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, materialSpecular, 0);
+        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, materialShininess);
+
         ball.drawSphere(gl, 0, 0, ballSize, 20, 20);
         gl.glPopMatrix();
     }

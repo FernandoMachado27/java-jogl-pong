@@ -3,8 +3,10 @@ package cena;
 import static cena.Collisions.checkCollisionWithObstacle;
 import static cena.Collisions.collisionPaddleWall;
 import static cena.Collisions.collisionWallBall;
-import static cena.Design.*;
-import static cena.Menu.*;
+import static cena.Design.design;
+import static cena.Design.designPhaseTwo;
+import static cena.Menu.menu;
+import static cena.Menu.menuPhaseTwo;
 
 import java.awt.Font;
 import java.util.Random;
@@ -15,9 +17,9 @@ import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.fixedfunc.GLLightingFunc;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.awt.TextRenderer;
-import com.jogamp.opengl.util.gl2.GLUT;
 
 import textura.Textura;
 
@@ -87,10 +89,29 @@ public class Cena implements GLEventListener {
     @Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-
+        
         textura.gerarTextura(gl, "imagens/step1.jpg", 0);
         textura.gerarTextura(gl, "imagens/raquetes.jpg", 1);
         textura.gerarTextura(gl, "imagens/step2.jpg", 2);
+
+        // Habilitar iluminação
+        gl.glEnable(GLLightingFunc.GL_LIGHTING);
+        gl.glEnable(GLLightingFunc.GL_LIGHT0);
+
+        // Configurar a luz
+        float[] lightAmbient = { 0.5f, 0.5f, 0.5f, 1.0f };  // Aumentar intensidade
+        float[] lightDiffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float[] lightSpecular = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float[] lightPosition = { 0.0f, 0.0f, 1.0f, 0.0f };
+
+        gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_AMBIENT, lightAmbient, 0);
+        gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_DIFFUSE, lightDiffuse, 0);
+        gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPECULAR, lightSpecular, 0);
+        gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_POSITION, lightPosition, 0);
+
+        // Habilitar material
+        gl.glEnable(GL2.GL_COLOR_MATERIAL);
+        gl.glColorMaterial(GL2.GL_FRONT, GLLightingFunc.GL_AMBIENT_AND_DIFFUSE);
     }
 
     @Override
@@ -174,22 +195,31 @@ public class Cena implements GLEventListener {
         boolean ballHitLeftPaddle = (ballX - ballSize / 2 <= -95 + paddleWidth);
         boolean ballHitRightPaddle = (ballX + ballSize / 2 >= 95 - paddleWidth);
 
-        if (ballHitLeftPaddle && (ballY >= paddle1Y - paddleHeight / 2 && ballY <= paddle1Y + paddleHeight / 2)) {
-            if (ballY == paddle1Y - paddleHeight / 2 || ballY == paddle1Y + paddleHeight / 2) {
-                ballDX *= -1;
-            } else {
-                ballDX *= -1;
-                if (phase == 2) {
-                    ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1 na fase 2
+        // Verifica colisão com a raquete esquerda
+        if (ballHitLeftPaddle) {
+            if (ballY >= paddle1Y - paddleHeight / 2 && ballY <= paddle1Y + paddleHeight / 2) {
+                if (ballY <= paddle1Y - paddleHeight / 2 + ballSize / 2 || ballY >= paddle1Y + paddleHeight / 2 - ballSize / 2) {
+                    // Bola encostou nas bordas superior ou inferior da raquete esquerda
+                    ballDX *= -1;  // Rebater
+                } else {
+                    ballDX *= -1;
+                    if (phase == 2) {
+                        ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1 na fase 2
+                    }
                 }
             }
-        } else if (ballHitRightPaddle && (ballY >= paddle2Y - paddleHeight / 2 && ballY <= paddle2Y + paddleHeight / 2)) {
-            if (ballY == paddle2Y - paddleHeight / 2 || ballY == paddle2Y + paddleHeight / 2) {
-                ballDX *= -1;
-            } else {
-                ballDX *= -1;
-                if (phase == 2) {
-                    ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1 na fase 2
+        }
+        // Verifica colisão com a raquete direita
+        else if (ballHitRightPaddle) {
+            if (ballY >= paddle2Y - paddleHeight / 2 && ballY <= paddle2Y + paddleHeight / 2) {
+                if (ballY <= paddle2Y - paddleHeight / 2 + ballSize / 2 || ballY >= paddle2Y + paddleHeight / 2 - ballSize / 2) {
+                    // Bola encostou nas bordas superior ou inferior da raquete direita
+                    ballDX *= -1;  // Rebater
+                } else {
+                    ballDX *= -1;
+                    if (phase == 2) {
+                        ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1 na fase 2
+                    }
                 }
             }
         }
