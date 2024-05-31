@@ -47,7 +47,6 @@ public class Cena implements GLEventListener {
     private GLU glu;
     // Gerador de números aleatórios
     private Random rand = new Random();
-    private Ball ball = new Ball();
     private Textura textura;
     int op;
     private int menuChoice;
@@ -122,7 +121,7 @@ public class Cena implements GLEventListener {
         if (!isPaused) { // Apenas atualiza e desenha se o jogo não estiver pausado
             if (menuChoice == JOptionPane.YES_OPTION) {
                 if (!isPhaseTwoStarted || phase == 1) {
-                    design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY, playerLives);
+                    design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, player1Score, computer, textRenderer, ballX, ballY, playerLives);
                 }
                 if (player1Score >= 200 && !isPhaseTwoStarted) {
                     isPhaseTwoStarted = true; // Marca a fase dois como iniciada
@@ -138,7 +137,7 @@ public class Cena implements GLEventListener {
                 }
                 if (phase == 2) {
                     // Continua chamando o design da fase dois em subsequentes chamadas de display
-                	designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY, playerLives, obstacle1X, obstacle2X);
+                	designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, player1Score, computer, textRenderer, ballX, ballY, playerLives, obstacle1X, obstacle2X);
                 }
             } else {
                 System.exit(0);
