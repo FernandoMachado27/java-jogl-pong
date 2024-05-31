@@ -1,6 +1,7 @@
 package cena;
 
 import static cena.Collisions.checkCollisionWithObstacle;
+import static cena.Collisions.checkCollisionWithPaddle;
 import static cena.Collisions.collisionPaddleWall;
 import static cena.Collisions.collisionWallBall;
 import static cena.Design.design;
@@ -196,30 +197,26 @@ public class Cena implements GLEventListener {
         boolean ballHitRightPaddle = (ballX + ballSize / 2 >= 95 - paddleWidth);
 
         // Verifica colisão com a raquete esquerda
-        if (ballHitLeftPaddle) {
-            if (ballY >= paddle1Y - paddleHeight / 2 && ballY <= paddle1Y + paddleHeight / 2) {
-                if (ballY <= paddle1Y - paddleHeight / 2 + ballSize / 2 || ballY >= paddle1Y + paddleHeight / 2 - ballSize / 2) {
-                    // Bola encostou nas bordas superior ou inferior da raquete esquerda
-                    ballDX *= -1;  // Rebater
-                } else {
-                    ballDX *= -1;
-                    if (phase == 2) {
-                        ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1 na fase 2
-                    }
+        if (ballHitLeftPaddle && checkCollisionWithPaddle(ballX, ballY, ballSize, -95 + paddleWidth, paddle1Y, paddleWidth, paddleHeight, true)) {
+            if (ballY <= paddle1Y - paddleHeight / 2 + ballSize / 2 || ballY >= paddle1Y + paddleHeight / 2 - ballSize / 2) {
+                // Bola encostou nas bordas superior ou inferior da raquete esquerda
+                ballDX *= -1;  // Rebater
+            } else {
+                ballDX *= -1;
+                if (phase == 2) {
+                    ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1 na fase 2
                 }
             }
         }
         // Verifica colisão com a raquete direita
-        else if (ballHitRightPaddle) {
-            if (ballY >= paddle2Y - paddleHeight / 2 && ballY <= paddle2Y + paddleHeight / 2) {
-                if (ballY <= paddle2Y - paddleHeight / 2 + ballSize / 2 || ballY >= paddle2Y + paddleHeight / 2 - ballSize / 2) {
-                    // Bola encostou nas bordas superior ou inferior da raquete direita
-                    ballDX *= -1;  // Rebater
-                } else {
-                    ballDX *= -1;
-                    if (phase == 2) {
-                        ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1 na fase 2
-                    }
+        else if (ballHitRightPaddle && checkCollisionWithPaddle(ballX, ballY, ballSize, 95 - paddleWidth, paddle2Y, paddleWidth, paddleHeight, false)) {
+            if (ballY <= paddle2Y - paddleHeight / 2 + ballSize / 2 || ballY >= paddle2Y + paddleHeight / 2 - ballSize / 2) {
+                // Bola encostou nas bordas superior ou inferior da raquete direita
+                ballDX *= -1;  // Rebater
+            } else {
+                ballDX *= -1;
+                if (phase == 2) {
+                    ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1 na fase 2
                 }
             }
         }

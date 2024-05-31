@@ -37,4 +37,24 @@ public class Collisions {
 
         return overlapX && overlapY;
     }
+
+    // Método para verificar colisão com as raquetes
+    public static boolean checkCollisionWithPaddle(int ballX, int ballY, int ballSize, int paddleX, int paddleY, int paddleWidth, int paddleHeight, boolean isLeftPaddle) {
+        int halfBallSize = ballSize / 2;
+        int ballLeft = ballX - halfBallSize;
+        int ballRight = ballX + halfBallSize;
+        int ballTop = ballY + halfBallSize;
+        int ballBottom = ballY - halfBallSize;
+
+        int paddleLeft = isLeftPaddle ? paddleX : paddleX - paddleWidth;
+        int paddleRight = isLeftPaddle ? paddleX + paddleWidth : paddleX;
+        int paddleTop = paddleY + paddleHeight / 2;
+        int paddleBottom = paddleY - paddleHeight / 2;
+
+        // Verifica se há sobreposição nos eixos x e y
+        boolean overlapX = (ballLeft < paddleRight) && (ballRight > paddleLeft);
+        boolean overlapY = (ballBottom < paddleTop) && (ballTop > paddleBottom);
+
+        return overlapX && overlapY;
+    }
 }
