@@ -252,7 +252,7 @@ public class Cena implements GLEventListener {
                 if (computer % 40 == 0) {
                     playerLives--;
                     if (playerLives == 0) {
-                        int response = JOptionPane.showConfirmDialog(null, "Você perdeu todas as vidas, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
+                        int response = Menu.menuLoseAllLives();
                         if (response == JOptionPane.YES_OPTION) {
                             resetGame();
                         } else {
@@ -267,14 +267,14 @@ public class Cena implements GLEventListener {
         // Condições para exibir mensagem de vitória ou derrota na fase 2
         if (phase == 2 && (player1Score >= 200 || computer >= 200)) {
             if (player1Score >= 200) {
-                int response = JOptionPane.showConfirmDialog(null, "Você venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
+                int response = Menu.menuWin();
                 if (response == JOptionPane.YES_OPTION) {
                     resetGame();
                 } else {
                     System.exit(0);
                 }
             } else if (computer >= 200) {
-                int response = JOptionPane.showConfirmDialog(null, "O computador venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
+                int response = Menu.menuComputerWin();
                 if (response == JOptionPane.YES_OPTION) {
                     resetGame();
                 } else {

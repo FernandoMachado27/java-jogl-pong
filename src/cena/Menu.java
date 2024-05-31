@@ -224,14 +224,14 @@ public class Menu {
         panel.add(buttonPanel, gbc);
     }
 
-    public static void menuLose() {
+    public static int menuGameOver(String message) {
         JFrame frame = new JFrame("Fim de Jogo");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH); // Abrir em tela cheia
 
         JPanel panel = new JPanel(new GridBagLayout());
         frame.add(panel, BorderLayout.CENTER);
-        placeComponentsLose(panel);
+        placeComponentsGameOver(panel, message);
 
         frame.setVisible(true);
 
@@ -243,33 +243,70 @@ public class Menu {
                 e.printStackTrace();
             }
         }
+
+        return userChoice; // Retorna a escolha do usuário
     }
 
-    private static void placeComponentsLose(JPanel panel) {
+    private static void placeComponentsGameOver(JPanel panel, String message) {
+        panel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10); // Ajustar o espaçamento
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0;
-        gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        JLabel loseLabel = new JLabel("Você perdeu :(", SwingConstants.CENTER);
-        loseLabel.setFont(new Font("Serif", Font.BOLD, 24));
-        gbc.gridwidth = 2;
-        panel.add(loseLabel, gbc);
-
-        gbc.gridwidth = 1;
-        gbc.gridy++;
+        JLabel gameOverLabel = new JLabel(message, SwingConstants.CENTER);
+        gameOverLabel.setFont(new Font("Serif", Font.BOLD, 24));
         gbc.gridx = 0;
-        gbc.fill = GridBagConstraints.NONE;
-        JButton okButton = new JButton("OK");
-        okButton.setFont(new Font("Serif", Font.PLAIN, 18));
-        okButton.addActionListener(e -> {
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        panel.add(gameOverLabel, gbc);
+
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbcButton = new GridBagConstraints();
+        gbcButton.insets = new Insets(10, 10, 10, 10);
+        gbcButton.gridx = 0;
+        gbcButton.gridy = 0;
+        gbcButton.fill = GridBagConstraints.NONE;
+
+        JButton yesButton = new JButton("Sim");
+        yesButton.setFont(new Font("Serif", Font.PLAIN, 18));
+        yesButton.addActionListener(e -> {
+            userChoice = JOptionPane.YES_OPTION;
             synchronized (panel.getTopLevelAncestor()) {
                 panel.getTopLevelAncestor().notify();
                 ((JFrame) panel.getTopLevelAncestor()).dispose();
             }
         });
-        panel.add(okButton, gbc);
+        buttonPanel.add(yesButton, gbcButton);
+
+        gbcButton.gridx = 1;
+        JButton noButton = new JButton("Não");
+        noButton.setFont(new Font("Serif", Font.PLAIN, 18));
+        noButton.addActionListener(e -> {
+            userChoice = JOptionPane.NO_OPTION;
+            synchronized (panel.getTopLevelAncestor()) {
+                panel.getTopLevelAncestor().notify();
+                ((JFrame) panel.getTopLevelAncestor()).dispose();
+            }
+        });
+        buttonPanel.add(noButton, gbcButton);
+
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        panel.add(buttonPanel, gbc);
+    }
+
+    // Métodos para exibir os menus de fim de jogo com as mensagens específicas
+    public static int menuLoseAllLives() {
+        return menuGameOver("Você perdeu todas as vidas, deseja jogar novamente?");
+    }
+
+    public static int menuWin() {
+        return menuGameOver("Você venceu!! Deseja jogar novamente?");
+    }
+
+    public static int menuComputerWin() {
+        return menuGameOver("O computador venceu, deseja jogar novamente?");
     }
 }
