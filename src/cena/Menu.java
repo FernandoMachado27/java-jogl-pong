@@ -58,7 +58,7 @@ public class Menu {
         gbc.weighty = 1.0;
         panel.add(Box.createVerticalGlue(), gbc);
 
-        JLabel welcomeLabel = new JLabel("Seja Bem-Vindo ao Pong!", SwingConstants.CENTER);
+        JLabel welcomeLabel = new JLabel("Seja Bem-Vindo ao HellPong!", SwingConstants.CENTER);
         welcomeLabel.setFont(new Font("Serif", Font.BOLD, 24));
         gbc.gridy++;
         gbc.weighty = 0;
@@ -80,7 +80,7 @@ public class Menu {
         doc.setParagraphAttributes(0, doc.getLength(), center, false);
         try {
             doc.insertString(0,
-                "Nesta divertida aventura, o objetivo é rebater a bola e marcar pontos encima do adversário. Lembrando que o usuário inicia com 5 vidas e caso nao consiga rebater a bola, uma vida será perdida.\r\n" +
+                "Nesta divertida aventura, o objetivo é rebater a bola e marcar pontos encima do adversário. Lembrando que o usuário inicia com 5 vidas e caso não consiga rebater a bola, uma vida será perdida.\r\n" +
                 "\r\n" +
                 "Ao atingir 200 pontos, você passará para o nível 2, onde encontrará desafios que deixará o game ainda mais emocionante!\r\n" +
                 "\r\n" +

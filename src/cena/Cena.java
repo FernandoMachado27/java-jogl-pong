@@ -43,17 +43,14 @@ public class Cena implements GLEventListener {
     private int computer = 0;
     // Renderizador de texto para o placar
     private TextRenderer textRenderer;
-    // Objeto GLU para funções auxiliares
-    private GLU glu;
     // Gerador de números aleatórios
     private Random rand = new Random();
     private Textura textura;
     int op;
     private int menuChoice;
-    private static GLWindow window = null;
     private int phase;
-    private boolean isPhaseTwoStarted = false;  // Variável para controlar o início da fase dois
-    private boolean isPaused = false; // Variável para controlar o estado de pausa
+    private boolean isPhaseTwoStarted = false;  
+    private boolean isPaused = false; 
     private int playerLives = 5;
     private int obstacle1X = 0;
     private int obstacle2X = 0;
@@ -74,15 +71,12 @@ public class Cena implements GLEventListener {
         ballY = (int) ((yMax - yMin) / 2);
 
         textRenderer = new TextRenderer(new Font("Arial", Font.BOLD, 24));
-        glu = new GLU();
 
-        // Inicialize o objeto de textura
         textura = new Textura(3);
 
         player1Score = 120;
         computer = 0;
 
-        // Exibe o menu apenas uma vez quando a cena é criada
         menuChoice = menu();
     }
 
@@ -118,7 +112,7 @@ public class Cena implements GLEventListener {
     public void display(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
 
-        if (!isPaused) { // Apenas atualiza e desenha se o jogo não estiver pausado
+        if (!isPaused) { 
             if (menuChoice == JOptionPane.YES_OPTION) {
                 if (!isPhaseTwoStarted || phase == 1) {
                     design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, player1Score, computer, textRenderer, ballX, ballY, playerLives);
@@ -127,16 +121,15 @@ public class Cena implements GLEventListener {
                     isPhaseTwoStarted = true; // Marca a fase dois como iniciada
                     menuChoice = menuPhaseTwo();
                     if (menuChoice == JOptionPane.YES_OPTION) {
-                        phase = 2; // Altera para a fase 2
-                        player1Score = 0; // Zera os pontos do jogador
-                        computer = 0; // Zera os pontos do computador
-                        playerLives = 5; // Reseta as vidas do jogador
+                        phase = 2; 
+                        player1Score = 0; 
+                        computer = 0;
+                        playerLives = 5; 
                     } else {
                         System.exit(0);
                     }
                 }
                 if (phase == 2) {
-                    // Continua chamando o design da fase dois em subsequentes chamadas de display
                 	designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, player1Score, computer, textRenderer, ballX, ballY, playerLives, obstacle1X, obstacle2X);
                 }
             } else {
