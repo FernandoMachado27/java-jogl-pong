@@ -1,10 +1,13 @@
 package cena;
 
 import static cena.Collisions.checkCollisionWithObstacle;
+import static cena.Collisions.checkCollisionWithPaddle;
 import static cena.Collisions.collisionPaddleWall;
 import static cena.Collisions.collisionWallBall;
-import static cena.Design.*;
-import static cena.Menu.*;
+import static cena.Design.design;
+import static cena.Design.designPhaseTwo;
+import static cena.Menu.menu;
+import static cena.Menu.menuPhaseTwo;
 
 import java.awt.Font;
 import java.util.Random;
@@ -15,9 +18,9 @@ import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.fixedfunc.GLLightingFunc;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.awt.TextRenderer;
-import com.jogamp.opengl.util.gl2.GLUT;
 
 import textura.Textura;
 
@@ -40,18 +43,14 @@ public class Cena implements GLEventListener {
     private int computer = 0;
     // Renderizador de texto para o placar
     private TextRenderer textRenderer;
-    // Objeto GLU para funções auxiliares
-    private GLU glu;
     // Gerador de números aleatórios
     private Random rand = new Random();
-    private Ball ball = new Ball();
     private Textura textura;
     int op;
     private int menuChoice;
-    private static GLWindow window = null;
     private int phase;
-    private boolean isPhaseTwoStarted = false;  // Variável para controlar o início da fase dois
-    private boolean isPaused = false; // Variável para controlar o estado de pausa
+    private boolean isPhaseTwoStarted = false;  
+    private boolean isPaused = false; 
     private int playerLives = 5;
     private int obstacle1X = 0;
     private int obstacle2X = 0;
@@ -72,51 +71,66 @@ public class Cena implements GLEventListener {
         ballY = (int) ((yMax - yMin) / 2);
 
         textRenderer = new TextRenderer(new Font("Arial", Font.BOLD, 24));
-        glu = new GLU();
 
-        // Inicialize o objeto de textura
         textura = new Textura(3);
 
         player1Score = 120;
         computer = 0;
 
-        // Exibe o menu apenas uma vez quando a cena é criada
         menuChoice = menu();
     }
 
     @Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-
+        
         textura.gerarTextura(gl, "imagens/step1.jpg", 0);
         textura.gerarTextura(gl, "imagens/raquetes.jpg", 1);
         textura.gerarTextura(gl, "imagens/step2.jpg", 2);
+
+        // Habilitar iluminação
+        gl.glEnable(GLLightingFunc.GL_LIGHTING);
+        gl.glEnable(GLLightingFunc.GL_LIGHT0);
+
+        // Configurar a luz
+        float[] lightAmbient = { 0.5f, 0.5f, 0.5f, 1.0f };  // Aumentar intensidade
+        float[] lightDiffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float[] lightSpecular = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float[] lightPosition = { 0.0f, 0.0f, 1.0f, 0.0f };
+
+        gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_AMBIENT, lightAmbient, 0);
+        gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_DIFFUSE, lightDiffuse, 0);
+        gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPECULAR, lightSpecular, 0);
+        gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_POSITION, lightPosition, 0);
+
+        // Habilitar material
+        gl.glEnable(GL2.GL_COLOR_MATERIAL);
+        gl.glColorMaterial(GL2.GL_FRONT, GLLightingFunc.GL_AMBIENT_AND_DIFFUSE);
     }
 
     @Override
     public void display(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
 
-        if (!isPaused) { // Apenas atualiza e desenha se o jogo não estiver pausado
+        if (!isPaused) { 
             if (menuChoice == JOptionPane.YES_OPTION) {
                 if (!isPhaseTwoStarted || phase == 1) {
-                    design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY, playerLives);
+                    design(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, player1Score, computer, textRenderer, ballX, ballY, playerLives);
                 }
                 if (player1Score >= 200 && !isPhaseTwoStarted) {
                     isPhaseTwoStarted = true; // Marca a fase dois como iniciada
                     menuChoice = menuPhaseTwo();
                     if (menuChoice == JOptionPane.YES_OPTION) {
-                        phase = 2; // Altera para a fase 2
-                        player1Score = 0; // Zera os pontos do jogador
-                        computer = 0; // Zera os pontos do computador
-                        playerLives = 5; // Reseta as vidas do jogador
+                        phase = 2; 
+                        player1Score = 0; 
+                        computer = 0;
+                        playerLives = 5; 
                     } else {
                         System.exit(0);
                     }
                 }
                 if (phase == 2) {
-                    // Continua chamando o design da fase dois em subsequentes chamadas de display
-                	designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, ball, player1Score, computer, textRenderer, ballX, ballY, playerLives, obstacle1X, obstacle2X);
+                	designPhaseTwo(drawable, xMin, xMax, yMin, yMax, textura, paddle1Y, paddle2Y, paddleHeight, paddleWidth, ballSize, player1Score, computer, textRenderer, ballX, ballY, playerLives, obstacle1X, obstacle2X);
                 }
             } else {
                 System.exit(0);
@@ -174,18 +188,23 @@ public class Cena implements GLEventListener {
         boolean ballHitLeftPaddle = (ballX - ballSize / 2 <= -95 + paddleWidth);
         boolean ballHitRightPaddle = (ballX + ballSize / 2 >= 95 - paddleWidth);
 
-        if (ballHitLeftPaddle && (ballY >= paddle1Y - paddleHeight / 2 && ballY <= paddle1Y + paddleHeight / 2)) {
-            if (ballY == paddle1Y - paddleHeight / 2 || ballY == paddle1Y + paddleHeight / 2) {
-                ballDX *= -1;
+        // Verifica colisão com a raquete esquerda
+        if (ballHitLeftPaddle && checkCollisionWithPaddle(ballX, ballY, ballSize, -95 + paddleWidth, paddle1Y, paddleWidth, paddleHeight, true)) {
+            if (ballY <= paddle1Y - paddleHeight / 2 + ballSize / 2 || ballY >= paddle1Y + paddleHeight / 2 - ballSize / 2) {
+                // Bola encostou nas bordas superior ou inferior da raquete esquerda
+                ballDX *= -1;  // Rebater
             } else {
                 ballDX *= -1;
                 if (phase == 2) {
                     ballDY += rand.nextInt(3) - 1; // Variação de -1 a 1 na fase 2
                 }
             }
-        } else if (ballHitRightPaddle && (ballY >= paddle2Y - paddleHeight / 2 && ballY <= paddle2Y + paddleHeight / 2)) {
-            if (ballY == paddle2Y - paddleHeight / 2 || ballY == paddle2Y + paddleHeight / 2) {
-                ballDX *= -1;
+        }
+        // Verifica colisão com a raquete direita
+        else if (ballHitRightPaddle && checkCollisionWithPaddle(ballX, ballY, ballSize, 95 - paddleWidth, paddle2Y, paddleWidth, paddleHeight, false)) {
+            if (ballY <= paddle2Y - paddleHeight / 2 + ballSize / 2 || ballY >= paddle2Y + paddleHeight / 2 - ballSize / 2) {
+                // Bola encostou nas bordas superior ou inferior da raquete direita
+                ballDX *= -1;  // Rebater
             } else {
                 ballDX *= -1;
                 if (phase == 2) {
@@ -222,7 +241,7 @@ public class Cena implements GLEventListener {
                 if (computer % 40 == 0) {
                     playerLives--;
                     if (playerLives == 0) {
-                        int response = JOptionPane.showConfirmDialog(null, "Você perdeu todas as vidas, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
+                        int response = Menu.menuLoseAllLives();
                         if (response == JOptionPane.YES_OPTION) {
                             resetGame();
                         } else {
@@ -237,14 +256,14 @@ public class Cena implements GLEventListener {
         // Condições para exibir mensagem de vitória ou derrota na fase 2
         if (phase == 2 && (player1Score >= 200 || computer >= 200)) {
             if (player1Score >= 200) {
-                int response = JOptionPane.showConfirmDialog(null, "Você venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
+                int response = Menu.menuWin();
                 if (response == JOptionPane.YES_OPTION) {
                     resetGame();
                 } else {
                     System.exit(0);
                 }
             } else if (computer >= 200) {
-                int response = JOptionPane.showConfirmDialog(null, "O computador venceu, deseja jogar novamente?", "Fim de Jogo", JOptionPane.YES_NO_OPTION);
+                int response = Menu.menuComputerWin();
                 if (response == JOptionPane.YES_OPTION) {
                     resetGame();
                 } else {

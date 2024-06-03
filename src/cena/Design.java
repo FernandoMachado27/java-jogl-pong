@@ -1,7 +1,5 @@
 package cena;
 
-import java.awt.Color;
-
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -12,7 +10,7 @@ import textura.Textura;
 public class Design {
 
     public static void design(GLAutoDrawable drawable, float xMin, float xMax, float yMin, float yMax, Textura textura,
-            int paddle1Y, int paddle2Y, int paddleHeight, int paddleWidth, int ballSize, Ball ball, int player1Score,
+            int paddle1Y, int paddle2Y, int paddleHeight, int paddleWidth, int ballSize, int player1Score,
             int computer, TextRenderer textRenderer, int ballX, int ballY, int playerLives) {
         GL2 gl = drawable.getGL().getGL2();
         // Limpa a tela
@@ -43,12 +41,12 @@ public class Design {
         drawPaddle(gl, 95 - paddleWidth, paddle2Y, paddleWidth, paddleHeight, textura);
 
         // Desenha a bolinha
-        drawBall(gl, ballX, ballY, ballSize, ball);
+        drawBall(gl, ballX, ballY, ballSize);
 
         // Desenha o placar
         String scoreText = player1Score + " | " + computer;
         textRenderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
-        textRenderer.setColor(Color.WHITE);
+        textRenderer.setColor(java.awt.Color.WHITE);
         textRenderer.draw(scoreText, (drawable.getSurfaceWidth() / 2) - 30, drawable.getSurfaceHeight() - 30);
 
         // Desenha as vidas do jogador
@@ -62,7 +60,7 @@ public class Design {
     }
 
     public static void designPhaseTwo(GLAutoDrawable drawable, float xMin, float xMax, float yMin, float yMax, Textura textura,
-            int paddle1Y, int paddle2Y, int paddleHeight, int paddleWidth, int ballSize, Ball ball, int player1Score,
+            int paddle1Y, int paddle2Y, int paddleHeight, int paddleWidth, int ballSize, int player1Score,
             int computer, TextRenderer textRenderer, int ballX, int ballY, int playerLives, int obstacle1X, int obstacle2X) {
         GL2 gl = drawable.getGL().getGL2();
 
@@ -113,11 +111,11 @@ public class Design {
         drawPaddle(gl, 95 - paddleWidth, paddle2Y, paddleWidth, paddleHeight, textura);
 
         // Desenha a bolinha
-        drawBall(gl, ballX, ballY, ballSize, ball);
+        drawBall(gl, ballX, ballY, ballSize);
 
         // Desenha o placar
         textRenderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
-        textRenderer.setColor(Color.WHITE);
+        textRenderer.setColor(java.awt.Color.WHITE);
         textRenderer.draw(player1Score + " | " + computer, (drawable.getSurfaceWidth() / 2) - 30, drawable.getSurfaceHeight() - 30);
 
         // Desenha as vidas do jogador
@@ -133,6 +131,18 @@ public class Design {
     private static void drawPaddle(GL2 gl, int x, int paddleY, int paddleWidth, int paddleHeight, Textura textura) {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         textura.vetTextures[1].bind(gl);
+
+        // Configurar material da raquete
+        float[] materialAmbient = { 0.3f, 0.3f, 0.3f, 1.0f };  // Aumentar intensidade
+        float[] materialDiffuse = { 0.3f, 0.8f, 0.3f, 1.0f };  // Aumentar intensidade
+        float[] materialSpecular = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float materialShininess = 50.0f;
+
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, materialAmbient, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, materialDiffuse, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, materialSpecular, 0);
+        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, materialShininess);
+
         gl.glBegin(GL2.GL_QUADS);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex2f(x, paddleY - paddleHeight / 2);
@@ -146,10 +156,43 @@ public class Design {
         gl.glDisable(GL2.GL_TEXTURE_2D);
     }
 
-    private static void drawBall(GL2 gl, int ballX, int ballY, int ballSize, Ball ball) {
+    private static void drawBall(GL2 gl, int ballX, int ballY, int ballSize) {
         gl.glPushMatrix();
         gl.glTranslatef(ballX, ballY, 0);
-        ball.drawSphere(gl, 0, 0, ballSize, 20, 20);
+
+        // Configurar material da bola
+        float[] materialAmbient = { 0.3f, 0.3f, 0.3f, 1.0f };  // Aumentar intensidade
+        float[] materialDiffuse = { 0.8f, 0.3f, 0.3f, 1.0f };  // Aumentar intensidade
+        float[] materialSpecular = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float materialShininess = 50.0f;
+
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, materialAmbient, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, materialDiffuse, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, materialSpecular, 0);
+        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, materialShininess);
+
+        drawSphere(gl, 0, 0, ballSize, 20, 20);
         gl.glPopMatrix();
+    }
+
+    // Método para desenhar a esfera (bola) usando triângulos
+    private static void drawSphere(GL2 gl, float centerX, float centerY, float radius, int slices, int stacks) {
+        gl.glColor3f(1.0f, 1.0f, 1.0f);
+        drawCircle(gl, centerX, centerY, radius / 2, slices);
+    }
+
+    // Método para desenhar um círculo que representa a bola
+    private static void drawCircle(GL2 gl, float centerX, float centerY, float radius, int numSegments) {
+        gl.glBegin(GL.GL_TRIANGLE_FAN);
+        gl.glVertex2f(centerX, centerY); // Centro do círculo
+
+        for (int i = 0; i <= numSegments; i++) {
+            double angle = 2.0 * Math.PI * i / numSegments;
+            float x = centerX + (float) (radius * Math.cos(angle));
+            float y = centerY + (float) (radius * Math.sin(angle));
+            gl.glVertex2f(x, y);
+        }
+
+        gl.glEnd();
     }
 }
