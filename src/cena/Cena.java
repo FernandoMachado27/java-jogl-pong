@@ -74,7 +74,7 @@ public class Cena implements GLEventListener {
 
         textura = new Textura(3);
 
-        player1Score = 120;
+        player1Score = -40;
         computer = 0;
 
         menuChoice = menu();
